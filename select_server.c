@@ -56,12 +56,7 @@ void subserver(int client_socket) {
   strncpy(buffer, "hello client", sizeof(buffer));
   write(client_socket, buffer, sizeof(buffer));
 
-  while (read(client_socket, buffer, sizeof(buffer))) {
-
-    printf("[subserver %d] received: [%s]\n", getpid(), buffer);
-    process(buffer);
-    write(client_socket, buffer, sizeof(buffer));
-  }//end read loop
+  play_game(client_socket, buffer);
   close(client_socket);
   exit(0);
 }
