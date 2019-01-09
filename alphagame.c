@@ -174,6 +174,7 @@ int main() {
       } else {
 	;
       }
+      //instead of ans < 4, more specific
       if(ans < 4) {
 	for(counter = 1; counter < numPlayer ; counter++) {
 	  int temp = counter + curPlayer;
