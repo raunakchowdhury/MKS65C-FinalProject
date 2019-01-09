@@ -14,6 +14,7 @@
 
 
 #define BUFFER_SIZE 256
+#define MAX 2 //adjust this val for num of players
 
 // 3 of each class
 // stack
@@ -26,7 +27,17 @@ struct player {
   int second_char;
 };
 
-void play_game(int client_socket);
+struct subserver {
+  int from_child;
+  int to_child;
+};
+
+// subserver stuff
+void play_game(int client_socket, int from_parent, int to_parent);
+
+// server stuff
+void master_game(struct subserver subservers[]);
+
 // int[] shuffle();
 
 // void play_game();

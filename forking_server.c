@@ -4,7 +4,7 @@
 int player_num;
 
 void process(char *s);
-void subserver(int from_client);
+void subserver(int from_client, int from_parent, int to_parent);
 
 // handle the SIGINT singla by deleting the well_known_pipe(WKP)
 static void sighandler(int signo){
@@ -26,15 +26,19 @@ int main() {
   int f;
   int to_child;
   int from_child;
+  int num_player = 0; //determines pos of players
+  struct subserver placeholder_server; //see var name
+  struct subserver subservers[MAX]; // array of players
+
   listen_socket = server_setup();
 
   signal(SIGINT, sighandler);
 
-  while (1) {
-    // //unlink pipes for cross-server communication
-    // unlink("to_parent");
-    // unlink("to_child");
-    // printf("pipes deleted!\n");
+  while (num_player < MAX) {
+    // //unlink pipes for cross-server communication using unnamed pipes
+    unlink("to_parent");
+    unlink("to_child");
+    printf("\npipes deleted! Ready for new client!\n");
 
     //recreate pipes for further connections
     if (!mkfifo("to_child", 0644)){
@@ -54,24 +58,26 @@ int main() {
       int to_parent = open("to_parent", O_WRONLY);
       int from_parent = open("to_child", O_RDONLY);
       // printf("ends opened!\n" );
-      subserver(client_socket);
+      subserver(client_socket, from_parent, to_parent);
     }
     else{
-      // printf("opening ends..\n" );
-      // open pipes to child
-      from_child = open("to_parent", O_RDONLY);
-      to_child = open("to_child", O_WRONLY);
-      // printf("ends opened!\n" );
+      // open pipes to child and put them in the placeholder_server
+      placeholder_server.from_child = open("to_parent", O_RDONLY);
+      placeholder_server.to_child = open("to_child", O_WRONLY);
+      subservers[num_player] = placeholder_server;
+      num_player++;
+      // printf("\nDone! from_child: %d to_child: %d\n", subservers[num_player].from_child, subservers[num_player].to_child);
       close(client_socket);
     }
-    //once finished adding players, move on to the actual game
-    // game_server(): does all the game control stuff
   }
+  printf("\n\nStarting game!\n" );
+  //once finished adding players, move on to the actual game
+  master_game(subservers); //does all the game control stuff
 }
 
-void subserver(int client_socket) {
+void subserver(int client_socket, int from_parent, int to_parent) {
 
-  play_game(client_socket);
+  play_game(client_socket, from_parent, to_parent);
   printf("Player %d has left the game.\n", player_num );
   close(client_socket);
   exit(0);
