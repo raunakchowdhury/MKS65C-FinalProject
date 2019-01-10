@@ -72,8 +72,9 @@ void master_game(struct subserver subservers[]){
 
            // if a challenge is issued, check cards and find a peace (find peace should kill clients if needed)
            // find_peace(subservers[i], subservers[j])
+           // if find_peace results in no action, continue asking players to challenge; else, break
          }
-         //if no challenges, end the turn
+         //end the turn
        }
      }
    }
