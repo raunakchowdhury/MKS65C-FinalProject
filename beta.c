@@ -13,23 +13,22 @@
 # include <signal.h>
 #include "beta.h"
 
-
-
 int orders[1000];
 int curPlayer = 0;
 int numPlayer = 0;
 int ocounter = 0;
 char input[charMax];
 char endGame = 1;
-int deck[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-//deck: duke 0-2, captain 3-5, captain 6-8, ambassador 9-11, contessa 12-14
-//0 unassigned (still in deck), 10-14 (i1), 20-24 (i2),
+int court[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//court: duke 0-2, captain 3-5, captain 6-8, ambassador 9-11, contessa 12-14
+//0 unassigned (still in court), 10-14 (i1), 20-24 (i2),
 int counter;
 int randLoc;
-char cards[5][charMax] = {"duke", "captain", "assassin",
-		      "ambassador", "contessa"};
-char deadCards[5][charMax] = {"DEAD duke", "DEAD captain", "DEAD assassin",
-			  "DEAD ambassador", "DEAD contessa"};
+char cards[5][charMax] = {"\x1B[35mDUKE\x1B[0m",
+			  "\x1B[36mCAPTAIN\x1B[0m",
+			  "\x1B[90mASSASSIN\x1B[0m",
+			  "\x1B[33mAMBASSADOR\x1B[0m",
+			  "\x1B[31mCONTESSA\x1B[0m"};
 char turnActions[7][charMax] = {"tax", "steal", "assassinate",
 			    "exchange", "income", "foreign-aid",
 			    "coup"};
@@ -60,7 +59,7 @@ void getInput() {
     exit(0);
 }
 
-//populates people and deck
+//populates people and court
 void setup() {
   for(counter = 0; counter < numPlayer; counter++) {
     //populates name, wealth
@@ -68,20 +67,19 @@ void setup() {
     printf("player %d, please enter your name:\n", counter);
     getInput();
     strcpy(people[counter].name, input);
-    people[counter].wealth = 8;
+    people[counter].wealth = 2;
 
-    //populates deck, i1, i2
+    //populates court, i1, i2
     randLoc = myrand();
-    while(deck[randLoc] != 0)
+    while(court[randLoc] != 0)
       randLoc = myrand();
-    deck[randLoc] = 10 + counter; //i1
-    strcpy(people[counter].i1, cards[randLoc % 3]);
-    
+    court[randLoc] = 10 + counter; //i1
+    strcpy(people[counter].i1, cards[randLoc / 3]);
     randLoc = myrand();;
-    while(deck[randLoc] != 0)
+    while(court[randLoc] != 0)
       randLoc = myrand();
-    deck[randLoc] = 20 + counter; //i2
-    strcpy(people[counter].i2, cards[randLoc % 3]);
+    court[randLoc] = 20 + counter; //i2
+    strcpy(people[counter].i2, cards[randLoc / 3]);
   }
 }
 
@@ -122,16 +120,65 @@ int tax(int cur) {
 }
 
 int steal(int cur) {
+  //steal:
+  //you attempted to steal from c
+  //waiting for blocks/challenges
   ; //choose who to steal
   //do it
+
+  //blocking
+  //_ attempted to steal from you
+  //allow, challenge, block with captain, block with ambassador
+
+  //__ attempted to block with captain
+  //allow, challenge
 }
 
 int assassinate(int cur) {
+  //assassinate:
+
+  //_  attempted to assassinate you
+  //allow, block with contessa, challenge
+
+  //You attempted to block with contessa
+  //Waiting for challenges
+
+  //_ attempted to block with contessa
   ; //choose who
 }
 
 int exchange(int cur) {
-  ;
+  
+  printf("court status:\n");
+  for(counter = 0; counter < 15; counter++) {
+    printf("%d: %d\n", counter, court[counter]);
+  }
+  /* printf("you attempted to exchange\nWaiting for blocks/challenges"); */
+  /* char options[4][charMax]; */
+  /* //options[2] = ; find deck location */
+  /* //options[3] = ; */
+  /* if(people[cur].i1[0] == 'D') */
+  /*   options[2] = ""; */
+  /* if(people[cur].i2[0] == 'D') */
+  /*   options[3] = ""; */
+  
+  /* randLoc = myrand(); */
+  /* while(court[randLoc] != 0) */
+  /*   randLoc = myrand(); */
+  /* //court[randLoc] = 10 + counter; //i1 */
+  /* //strcpy(people[counter].i1, cards[randLoc % 3]); */
+  /* options[0] = randLoc; */
+
+  /* randLoc = myrand(); */
+  /* while(court[randLoc] != 0) */
+  /*   randLoc = myrand(); */
+  /* options[1] = randLoc; */
+  
+
+  /* printf("choose a role to keep:\n"); */
+
+  /* printf("choose another role to keep:\n"); */
+  /* ; */
 }
 
 int income(int cur) {
@@ -149,6 +196,15 @@ int foreignAid(int cur) {
   people[cur].wealth += 2;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
+
+  //_ attempted to draw foreign-aid
+  // allow, block with duke
+
+  //you attempted to block with duke
+  //waiting for challenges
+
+  //b attempted to block with duke
+  //allow, challenge
 }
 
 int coup(int cur) {
@@ -304,6 +360,10 @@ int main() {
   people = calloc(numPlayer, sizeof(struct player));
   setup();
   while(endGame) {
+    //play action
+    //challenge
+    //block action
+    //undo action
     printf("\n\n\n");
     printInfo(curPlayer);
     if(people[curPlayer].i1[0] == 'D' && people[curPlayer].i2[0] == 'D') {

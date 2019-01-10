@@ -17,6 +17,12 @@
 #define NRM  "\x1B[0m"
 #define GRN  "\x1B[32m"
 #define BLU  "\x1B[34m"
+
+#define RED  "\x1B[31m" //contessa
+#define YEL  "\x1B[33m" //ambassador
+#define MAG  "\x1B[35m" //duke
+#define CYN  "\x1B[36m" //captain
+#define WHT  "\x1B[90m" //assassin
 struct player {
   char name[charMax];
   int wealth;
@@ -30,7 +36,7 @@ int numPlayer;
 int ocounter;
 char input[charMax];
 char endGame;
-int deck[15];
+int court[15];
 int counter;
 int randLoc;
 char cards[5][charMax];
