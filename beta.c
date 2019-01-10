@@ -49,7 +49,22 @@ int myrand() {
   }
 }
 
+//beta - papa server
+
 //reads stdin
+
+//gets read end of pipe from clinet 
+//getInput(int cur)
+
+//request input
+//send to server int
+
+//recieve input
+
+//printInfo(int cur)
+
+
+
 void getInput() {
   printf("%s- ", BLU);
   fgets(input, sizeof(input), stdin);
@@ -153,32 +168,35 @@ int exchange(int cur) {
   for(counter = 0; counter < 15; counter++) {
     printf("%d: %d\n", counter, court[counter]);
   }
-  /* printf("you attempted to exchange\nWaiting for blocks/challenges"); */
-  /* char options[4][charMax]; */
-  /* //options[2] = ; find deck location */
-  /* //options[3] = ; */
-  /* if(people[cur].i1[0] == 'D') */
-  /*   options[2] = ""; */
-  /* if(people[cur].i2[0] == 'D') */
-  /*   options[3] = ""; */
+  printf("you attempted to exchange\nWaiting for blocks/challenges");
+  int options[4];
   
-  /* randLoc = myrand(); */
-  /* while(court[randLoc] != 0) */
-  /*   randLoc = myrand(); */
-  /* //court[randLoc] = 10 + counter; //i1 */
-  /* //strcpy(people[counter].i1, cards[randLoc % 3]); */
-  /* options[0] = randLoc; */
+  //options[2] = ; find deck location
+  //options[3] = ;
+  if(people[cur].i1[0] == 'D')
+    options[2] = 1;
+  else;
+    //options[2] = findLoc(1+cur);
+  if(people[cur].i2[0] == 'D')
+    options[3] = 1;
+  
+  randLoc = myrand();
+  while(court[randLoc] != 0)
+    randLoc = myrand();
+  //court[randLoc] = 10 + counter; //i1
+  //strcpy(people[counter].i1, cards[randLoc % 3]);
+  options[0] = randLoc;
 
-  /* randLoc = myrand(); */
-  /* while(court[randLoc] != 0) */
-  /*   randLoc = myrand(); */
-  /* options[1] = randLoc; */
+  randLoc = myrand();
+  while(court[randLoc] != 0)
+    randLoc = myrand();
+  options[1] = randLoc;
   
 
-  /* printf("choose a role to keep:\n"); */
+  printf("choose a role to keep:\n");
 
-  /* printf("choose another role to keep:\n"); */
-  /* ; */
+  printf("choose another role to keep:\n");
+  ;
 }
 
 int income(int cur) {
@@ -352,13 +370,18 @@ void gameEnd() {
 
 //limit inputs to only acceptable answers
 int main() {
+  //server
   printf("-----COUP-----\n");
   printf("enter \'exit\' if you ever wish to close the game\n\n\n");
-  printf("enter the number of players: (max 5)\n");
+  printf("hello, player 1 enter the number of players: (max 5)\n");
   getInput();
   numPlayer = atoi(input); //only let 2-5
   people = calloc(numPlayer, sizeof(struct player));
+
+  
   setup();
+
+  //otherFunction
   while(endGame) {
     //play action
     //challenge
