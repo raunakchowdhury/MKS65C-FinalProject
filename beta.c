@@ -127,6 +127,7 @@ int tax(int cur) {
   people[cur].wealth += 3;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
+  block(cur, 9, 0);
 }
 
 int steal(int cur) {
@@ -152,13 +153,8 @@ int steal(int cur) {
     people[cur].wealth = 10;
   if(people[tAns].wealth < 0)
     people[tAns].wealth = 0;
-
-  //blocking
-  //_ attempted to steal from you
-  //allow, challenge, block with captain, block with ambassador
-
-  //__ attempted to block with captain
-  //allow, challenge
+  
+  block(cur, tAns, 1);
 }
 
 int assassinate(int cur) {
@@ -193,6 +189,7 @@ int assassinate(int cur) {
   }
   else
     ; //for cannot coup too little wealth
+  block(cur, tAns, 2);
 }
 
 int exchange(int cur) {
@@ -284,6 +281,7 @@ int exchange(int cur) {
       court[options[tAns]] = 20 + cur;
     }
   }
+  block(cur, 9, 3);
 }
 
 int income(int cur) {
@@ -299,12 +297,15 @@ int income(int cur) {
 }
 
 int foreignAid(int cur) {
-  if(people[cur].wealth == 10)
+  if(people[cur].wealth == 10) {
     printf("you can no longer gain wealth, turn wasted\n");
+    block(cur, 5);
     return 1;
+  }
   people[cur].wealth += 2;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
+  block(cur, 9, 5);
   return 0;
 }
 
@@ -382,6 +383,111 @@ int challenge(int challenger, int challenged, int card) {
   }
 }
 
+int block(int cur, int def, int ans) {
+  int c;
+  for(c = 1; c < numPlayer; c++) {
+    int result;
+    int temp = (c + curPlayer) % numPlayer;
+    if(temp == def)
+      printf("\nplayer %s: player %s attempted to %s\n", people[temp].name, people[curPlayer].name, actions[ans]);
+    else
+      printf("\nplayer %s: player %s attempted to %s\n", people[temp].name, people[curPlayer].name, turnActions[ans]);
+    if(ans != 5)
+      printf("0. allow   1. challenge   ");
+    int size = 2;
+    switch(ans) {
+      //tax is default
+    case 1: //steal
+      if(temp == def) {
+	printf("2. block with captain   3. block with ambassador\n");
+	size = 4;
+      }
+      break;
+    case 2: //assassinate
+      break;
+    case 3: //exchange
+      break;
+ 
+    case 5:
+      printf("0. allow   1. block with duke\n");
+      size = 2;
+      break;
+    default:
+      printf("\n");
+    }
+    getInput();
+    check(size);
+    int tCounter;
+    int tAns = atoi(input);
+    if(ans == 5 && tAns == 1) {
+      printf("you attempted to block with duke\nwaiting for challenges\n\n");
+      for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
+	int tTemp = (tCounter + temp) % numPlayer;	  
+	printf("player %s, player %s attempted to block with duke\n", people[tTemp].name, people[temp].name);
+	printf("0. allow   1. challenge\n");
+	getInput();
+	check(2);
+	int tTAns = atoi(input);
+	if(tTAns == 0) {
+	  people[curPlayer].wealth -= 2;
+	}
+	if(tTAns == 1) { //challenge
+	  result = challenge(tTemp, temp, 0);
+	      
+	  //need to break for loop;
+	  //need to undo action of challenged
+	}
+      }
+      return 1;
+    }
+    if(ans == 1) {
+      int reCard;
+      if(tAns == 2)
+	reCard = 1;
+      if(tAns == 3)
+	reCard = 3;
+      
+      printf("you attempted to block with %s\nwaiting for challenges\n\n", card[reCard]);
+      if(tAns == 2 || tAns == 3) {
+	for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
+	  int tTemp = (tCounter + temp) % numPlayer;	  
+	  printf("player %s, player %s attempted to block with %s\n", people[tTemp].name, people[temp].name, cards[reCard]);
+	  printf("0. allow   1. challenge\n");
+	  getInput();
+	  check(2);
+	  int tTAns = atoi(input);
+	  if(tTAns == 0) {
+	    people[curPlayer].wealth -= 2;
+	  }
+	  if(tTAns == 1) { //challenge
+	    result = challenge(tTemp, temp, 0);
+	      
+	    //need to break for loop;
+	    //need to undo action of challenged
+	  }
+	}
+
+      }
+      //__ attempted to block with captain
+      //allow, challenge
+      return 1;
+    }
+    if(tAns == 1) { //challenge
+      result = challenge(temp, curPlayer, ans);
+      //need to break for loop;
+      //need to undo action of challenged
+    }
+    
+    switch(ans) {
+    case 3:
+      break;
+    default:
+      ;
+    }
+  }
+
+}
+
 void turn() {
   //needed for printing chat hist?
   orders[ocounter] = curPlayer;
@@ -418,60 +524,6 @@ void turn() {
     break;
   default:
     ;
-  }
-  //instead of ans < 4, more specific
-  if(!(ans == 4 || ans == 6)) {
-    int c;
-    for(c = 1; c < numPlayer; c++) {
-      int size = 2;
-      int result;
-      int temp = (c + curPlayer) % numPlayer;
-      printf("\nplayer %s: player %s attempted to %s\n", people[temp].name, people[curPlayer].name, turnActions[ans]);
-      printf("0. allow   1. challenge   ");
-      switch(ans) {
-      case 5:
-	printf("2. block with duke\n");
-	size = 3;
-	break;
-      default:
-	printf("\n");
-      }
-      getInput();
-      check(size);
-      int tAns = atoi(input);
-      if(tAns == 1) { //challenge
-	result = challenge(temp, curPlayer, ans);
-	//need to break for loop;
-	//need to undo action of challenged
-      }
-      switch(ans) {
-      case 5:
-	if(tAns == 2) {
-	  printf("you attempted to block with duke\nwaiting for challenges\n\n");
-	  int tCounter;
-	  for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
-	    int tTemp = (tCounter + temp) % numPlayer;	  
-	    printf("player %s, player %s attempted to block with duke\n", people[tTemp].name, people[temp].name);
-	    printf("0. allow   1. challenge\n");
-	    getInput();
-	    check(2);
-	    int tTAns = atoi(input);
-	    if(tTAns == 0) {
-	      people[curPlayer].wealth -= 2;
-	    }
-	    if(tTAns == 1) { //challenge
-	      result = challenge(tTemp, temp, 0);
-	      
-	      //need to break for loop;
-	      //need to undo action of challenged
-	    }
-	  }
-	}
-	break;
-      default:
-	;
-      }
-    }
   }
 }
 
@@ -514,11 +566,12 @@ int main() {
     //undo action
     printf("\n\n\n");
     printInfo(curPlayer);
+    //skip dead players
     if(people[curPlayer].i1[0] == 'D' && people[curPlayer].i2[0] == 'D') {
       curPlayer++;
       curPlayer = curPlayer % numPlayer;
     } else {
-      turn();
+      int ans = turn();
       printf("\n\n\n");
       //printHistory();
       ocounter++;

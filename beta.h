@@ -49,6 +49,7 @@ char cards[5][charMax] = {"\x1B[35mDUKE\x1B[0m",
 char turnActions[7][charMax] = {"tax", "steal", "assassinate",
 		"exchange", "income", "foreign-aid",
 		"coup"};
+char actions[7][charMax] = { "tax", "steal from you", "assassinate you", "exchange cards", "draw income", "draw foreign-aid", "coup"};
 char accepted[10][charMax] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 struct player * people;
 
@@ -70,6 +71,7 @@ int coup(int cur);
 
 void reveal(int cur);
 int challenge(int challenger, int challengee, int card);
+int block(int cur, int def, int ans);
 void turn();
 void gameEnd();
 
