@@ -49,17 +49,18 @@ char cards[5][charMax] = {"\x1B[35mDUKE\x1B[0m",
 char turnActions[7][charMax] = {"tax", "steal", "assassinate",
 		"exchange", "income", "foreign-aid",
 		"coup"};
-char actions[7][charMax] = { "tax", "steal from you", "assassinate you", "exchange cards", "draw income", "draw foreign-aid", "coup"};
+char actions[7][charMax] = { "tax", "steal from you", "assassinate you\nyou must reveal an influence", "exchange cards", "draw income", "draw foreign-aid", "coup"};
 char accepted[10][charMax] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 struct player * people;
 
 int myrand();
 void getInput();
-void setup();
 int findLoc(int value);
 void printInfo(int cur);
 void printHistory(); //needs reworking
 void check(int size);
+
+void setup();
 
 int tax(int cur);
 int steal(int cur);
@@ -70,11 +71,14 @@ int foreignAid(int cur);
 int coup(int cur);
 
 void reveal(int cur);
+// 0 for challenge failed, 1 for challenger succeeded
 int challenge(int challenger, int challengee, int card);
 int block(int cur, int def, int ans);
 void turn();
 void gameEnd();
 
+int playersJoin();
+int runGame();
 //challenging
 
 
