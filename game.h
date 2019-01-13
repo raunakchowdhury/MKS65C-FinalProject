@@ -12,32 +12,22 @@
 # include <errno.h>
 # include <signal.h>
 
+# include "beta.h"
+
 
 #define BUFFER_SIZE 256
-#define MAX 2 //adjust this val for num of players
+#define MAX 5 //adjust this val for num of players
 
 // 3 of each class
 // stack
 int deck[15];
 
-//player struct
-struct player {
-  int wealth;
-  int first_char;
-  int second_char;
+struct client {
+  int client_socket;
+  char name[charMax];
 };
 
-struct subserver {
-  int from_child;
-  int to_child;
-};
-
-// subserver stuff
-void play_game(int client_socket, int from_parent, int to_parent);
+void announce(struct client clients[], int num_players, char * msg);
 
 // server stuff
-void master_game(struct subserver subservers[]);
-
-// int[] shuffle();
-
-// void play_game();
+void master_game(struct client clients[]);
