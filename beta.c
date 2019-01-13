@@ -20,9 +20,9 @@ int myrand() {
 //printTo(int cur)
 // -printf replacement, printInfo replacement
 void getInput() {
-  printf("%s- ", BLU);
+  printf("%.100s- ", BLU);
   fgets(input, sizeof(input), stdin);
-  printf("%s", NRM);
+  printf("%.100s", NRM);
   input[strlen(input) - 1] = 0; //removes newLine
   if(strcmp(input, "exit") == 0)
     exit(0);
@@ -38,33 +38,44 @@ int findLoc(int value) {
 
 //sendOutput(char b[charMax])
 
+void print(int client) {
+  printf("%d\n%s", client, line);
+}
+
 void printInfo(int cur) {
-  printf("-----player info-----\n");
+  char info[charMax] = "";
+  strcat(info, "-----player info-----\n");
   for(counter = 0; counter < numPlayer; counter++) {
-    if(counter == cur)
-    printf("%splayer %s: $%d%s, %s, %s\n", GRN, people[counter].name,
-	   people[counter].wealth, NRM, people[counter].i1, people[counter].i2);
+    if(counter == cur) {
+      sprintf(tString, "%.100splayer %.100s: $%d%.100s, %.100s, %.100s\n", GRN, people[counter].name, people[counter].wealth, NRM, people[counter].i1, people[counter].i2);
+      strcat(info, tString);
+    }
     else {
-      printf("player %s: $%d, ", people[counter].name,
-	     people[counter].wealth);
-      if(people[counter].i1[0] == 'D')
-	printf("%s, ", people[counter].i1);
+      sprintf(tString, "player %.100s: $%d, ", people[counter].name, people[counter].wealth);
+      strcat(info, tString);
+      if(people[counter].revealed == 1) {
+	strcat(info, people[counter].i1);
+	strcat(info, "%.100s, ");
+      }
       else
-	printf("unknown, ");
-      if(people[counter].i2[0] == 'D')
-	printf("%s\n", people[counter].i2);
-      else
-	printf("unknown\n");
+	strcat(info, "unknown, ");
+      if(people[counter].revealed == 2) {
+	strcat(info, people[counter].i2);
+	strcat(info, "\n");
+      }
+      else 
+	strcat(info, "unknown\n");
     }
   }
-  printf("\n");
+  strcat(info, "\n");
+  strcpy(line, info);
 }
 
 void printHistory() {
   //redisgn with char array... or file where every pub action is written
   printf("history:\n");
   for(counter = 0; counter < ocounter; counter += 2)
-    printf("action %d: player %s,  %s\n", 1 + counter/2,
+    printf("action %d: player %.100s,  %.100s\n", 1 + counter/2,
 	   people[orders[counter]].name, turnActions[orders[counter+1]]);
 }
 
@@ -94,8 +105,8 @@ void setup() {
     strcpy(people[counter].name, BLU);
     strcat(people[counter].name, input);
     strcat(people[counter].name, NRM);
-    people[counter].wealth = 2;
-
+    people[counter].wealth = 7;
+    people[counter].revealed = 0;
     //populates court, i1, i2
     randLoc = myrand();
     while(court[randLoc] != 0)
@@ -110,79 +121,80 @@ void setup() {
   }
 }
 
-int tax(int cur) {
+void tax(int cur) {
   printf("you attempted to tax\nwaiting for challenges\n");
+  block(cur, 9, 0);
   people[cur].wealth += 3;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
-  block(cur, 9, 0);
 }
 
-int steal(int cur) {
+void steal(int cur) {
   printf("steal:\n");
+  int answers[7];
+  int ansC = 0;
   for(counter = 0; counter < numPlayer; counter++) {
-    if(counter < cur)
-      printf("%d. player %s   ", counter, people[counter].name);
-    else if(counter == cur)
+    if(people[counter].revealed == 3 || counter == cur || people[counter].wealth == 0) { //logic flaw if everyone 0 wealth
       ;
-    else
-      printf("%d. player %s   ", counter - 1, people[counter].name);
+    } else {
+      printf("%d. player %.100s   ", ansC, people[counter].name);
+      answers[ansC] = counter;
+      ansC++;
+    }
   }
   printf("\n");
   getInput();
-  check(numPlayer - 1);
+  check(ansC);
   int tAns = atoi(input);
-  printf("you attempted to steal from player %s...\nwaiting for blocks/challenges...\n", people[tAns].name);
-  if(tAns >= cur)
-    tAns++;
-  printf("\n\nplayer %s, player %s attempted to steal from you\nyou must reveal an influence:\n", people[tAns].name, people[cur].name);
+  tAns = answers[tAns];
+  printf("you attempted to steal from player %.100s...\nwaiting for blocks/challenges...\n", people[tAns].name);
+  block(cur, tAns, 1);
   people[cur].wealth += 2;
   people[tAns].wealth -= 2;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
   if(people[tAns].wealth < 0)
     people[tAns].wealth = 0;
-  
-  block(cur, tAns, 1);
 }
 
-int assassinate(int cur) {
-  if(people[cur].wealth >= 3) {
-    people[cur].wealth -= 3;
-    printf("assassinate:\n");
-    for(counter = 0; counter < numPlayer; counter++) {
-      if(counter < cur)
-	printf("%d. player %s   ", counter, people[counter].name);
-      else if(counter == cur)
-	;
-      else
-	printf("%d. player %s   ", counter - 1, people[counter].name);
+void assassinate(int cur) {
+  people[cur].wealth -= 3;
+  printf("assassinate:\n");
+
+  int answers[7];
+  int ansC = 0;
+  for(counter = 0; counter < numPlayer; counter++) {
+    if(people[counter].revealed == 3 || counter == cur) {
+      ;
+    } else {
+      printf("%d. player %.100s   ", ansC, people[counter].name);
+      answers[ansC] = counter;
+      ansC++;
     }
-    printf("\n");
-    getInput();
-    check(numPlayer - 1);
-    int tAns = atoi(input);
-    if(tAns >= cur)
-      tAns++;
-    printf("you attempted to assassinate player %s...\nwaiting for player %s to reveal an influence...\n", people[tAns].name, people[tAns].name);
-    block(cur, tAns, 2);
   }
-  else
-    ; //for cannot coup too little wealth
+  printf("\n");
+  getInput();
+  check(ansC);
+  int tAns = atoi(input);
+  tAns = answers[tAns];
+  printf("you attempted to assassinate player %.100s...\nwaiting for player %.100s to reveal an influence...\n", people[tAns].name, people[tAns].name);
+  block(cur, tAns, 2);
 }
 
-int exchange(int cur) {
+void exchange(int cur) {
+  printf("you attempted to exchange...\nwaiting for blocks/challenges...\n");
+  block(cur, 9, 3);
   int options[4];
   int tempN = 0;
   int size = 4;
   int replace = 0;
   options[2] = findLoc(cur + 10);
-  if(people[cur].i1[0] == 'D') {
+  if(people[cur].revealed == 1) {
     tempN += 1;
     replace = 3;
   }
   options[3] = findLoc(cur + 20);
-  if(people[cur].i2[0] == 'D') {
+  if(people[cur].revealed == 2) {
     tempN += 2;
     replace = 2;
   }
@@ -198,19 +210,19 @@ int exchange(int cur) {
   options[1] = randLoc;
   
 
-  printf("choose a role to keep:\n");
-  printf("0. %s   1. %s   ", cards[options[0] / 3], cards[options[1] / 3]);
+  printf("\nplayer %.100s, choose a role to keep:\n", people[cur].name);
+  printf("0. %.100s   1. %.100s   ", cards[options[0] / 3], cards[options[1] / 3]);
   switch(tempN) {
   case 1:
-    printf("2. %s\n", cards[options[3] / 3]);
+    printf("2. %.100s\n", cards[options[3] / 3]);
     size = 3;
     break;
   case 2:
-    printf("2. %s\n", cards[options[2] / 3]);
+    printf("2. %.100s\n", cards[options[2] / 3]);
     size = 3;
     break;
   default:
-    printf("2. %s   3. %s\n", cards[options[2] / 3], cards[options[3] / 3]);
+    printf("2. %.100s   3. %.100s\n", cards[options[2] / 3], cards[options[3] / 3]);
   }
   getInput();
   check(size);
@@ -248,7 +260,7 @@ int exchange(int cur) {
     options[3] = t;
     //move done one to far right
     printf("choose another role to keep:\n");
-    printf("0. %s   1. %s   2. %s\n", cards[options[0] / 3], cards[options[1] / 3], cards[options[2] / 3]);
+    printf("0. %.100s   1. %.100s   2. %.100s\n", cards[options[0] / 3], cards[options[1] / 3], cards[options[2] / 3]);
     getInput();
     check(3);
     int tAns = atoi(input);
@@ -260,94 +272,78 @@ int exchange(int cur) {
       court[options[tAns]] = 20 + cur;
     }
   }
-  block(cur, 9, 3);
 }
 
-int income(int cur) {
-  if(people[cur].wealth == 10) {
-    printf("you can no longer gain wealth, turn wasted\n");
-    return 1;
-  }
+void income(int cur) {
   people[cur].wealth++;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
-  return 0;
-  // if cant do... return 1 for fail and ask again?
 }
 
-int foreignAid(int cur) {
-  if(people[cur].wealth == 10) {
-    printf("you can no longer gain wealth, turn wasted\n");
-    block(cur, 9, 5);
-    return 1;
-  }
+void foreignAid(int cur) {
+  printf("you attempted to draw foreign-aid...\nwaiting for blocks...\n");
+  block(cur, 9, 5);
+  //check retirm value to make things happen
+  // *** also check what block changes
   people[cur].wealth += 2;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
-  block(cur, 9, 5);
-  return 0;
 }
 
-int coup(int cur) {
-  if(people[cur].wealth >= 7) {
-    people[cur].wealth -= 7;
-    printf("coup:\n");
-    for(counter = 0; counter < numPlayer; counter++) {
-      if(counter < cur)
-	printf("%d. player %s   ", counter, people[counter].name);
-      else if(counter == cur)
-	;
-      else
-	printf("%d. player %s   ", counter - 1, people[counter].name);
-    }
-    printf("\n");
-    getInput(numPlayer - 1);
-    int tAns = atoi(input);
-    printf("you staged a coup...\nwaiting for player %s to reveal an influence...\n", people[tAns].name);
-    if(tAns >= cur)
-      tAns++;
-    //reveal(int cur)  tAns
-    printf("\n\nplayer %s, player %s staged a coup on you\nyou must reveal an influence:\n", people[tAns].name, people[cur].name);
-    reveal(tAns);
+void coup(int cur) {
+  people[cur].wealth -= 7;
+  printf("coup:\n");
+  for(counter = 0; counter < numPlayer; counter++) {
+    if(counter < cur)
+      printf("%d. player %.100s   ", counter, people[counter].name);
+    else if(counter == cur)
+      ;
+    else
+      printf("%d. player %.100s   ", counter - 1, people[counter].name);
   }
-  else
-    ; //for cannot coup too little wealth
+  printf("\n");
+  getInput(numPlayer - 1);
+  int tAns = atoi(input);
+  printf("you staged a coup...\nwaiting for player %.100s to reveal an influence...\n", people[tAns].name);
+  if(tAns >= cur)
+    tAns++;
+  //reveal(int cur)  tAns
+  printf("\n\nplayer %.100s, player %.100s staged a coup on you\nyou must reveal an influence:\n", people[tAns].name, people[cur].name);
+  reveal(tAns);
+ 
 }
 
 
 void reveal(int cur) {
-  int tempN = 0;
-  //printing choices avaiable
-  if(people[cur].i1[0] != 'D') {
-    printf("%d. %s   ", tempN, people[cur].i1);
-    tempN += 1;
-  }
-  if(people[cur].i2[0] != 'D') {
-    printf("%d. %s   ", tempN, people[cur].i2);
-    tempN += 2;
-  }
-  printf("\n");
+  int answers[2];
   int size = 1;
-  if(tempN == 3)
+
+  //printing choices avaiable
+  if(people[cur].revealed == 1) {
+    printf("0. %.100s\n", people[cur].i2);
+    answers[0] = 2;
+  } else if(people[cur].revealed == 2) {
+    printf("0. %.100s\n", people[cur].i1);
+    answers[0] = 1;
+  } else {
+    printf("0. %.100s   1. %.100s\n", people[cur].i1, people[cur].i2);
+    answers[0] = 1;
+    answers[1] = 2;
     size = 2;
+  }
   getInput(size);
   int ans = atoi(input);
   char dead[charMax] = "DEAD ";
-  if(tempN == 3) { //when both influences are still alive
-    if(ans == 0) {
-      strcat(dead, people[cur].i1);
-      strcpy(people[cur].i1, dead);
-    }
-    else {
-      strcat(dead, people[cur].i2);
-      strcpy(people[cur].i2, dead);
-    }
-  } else if(tempN == 1) { //if i2 is DEAD
+  ans = answers[ans];
+  if(ans == 1) {
     strcat(dead, people[cur].i1);
-    strcpy(people[cur].i1, dead);  
-  } else { //if i1 is DEAD
+    strcpy(people[cur].i1, dead);
+    people[cur].revealed += ans;
+  }
+  if(ans == 2) {
     strcat(dead, people[cur].i2);
     strcpy(people[cur].i2, dead);
+    people[cur].revealed += ans;
   }
 }
 
@@ -355,166 +351,179 @@ void reveal(int cur) {
 int challenge(int challenger, int challenged, int card) {
   if(strcmp(people[challenged].i1, cards[card]) == 0 ||
      strcmp(people[challenged].i2, cards[card]) == 0) { //failed challege
-    printf("\nplayer %s, you failed to challenge player %s\nyou must reveal an influence: \n", people[challenger].name, people[challenged].name);
+    printf("\nplayer %.100s, you failed to challenge player %.100s\nyou must reveal an influence: \n", people[challenger].name, people[challenged].name);
     reveal(challenger);
     return 0;
   } else { //successful challenge
-    printf("\nplayer %s, player %s successfully challenged you\nyou must reveal an influence:\n", people[challenged].name, people[challenger].name);
+    printf("\nplayer %.100s, player %.100s successfully challenged you\nyou must reveal an influence:\n", people[challenged].name, people[challenger].name);
     reveal(challenged);
     return 1;
   }
 }
 
 //change when to return 1, aka exit early
+// 0 no blocks?
 //change so when action isnt blocked, effect takes place!!!
 int block(int cur, int def, int ans) {
   int c;
   for(c = 1; c < numPlayer; c++) {
     int result;
     int temp = (c + cur) % numPlayer;
-    if(temp == def)
-      printf("\nplayer %s: player %s attempted to %s\n", people[temp].name, people[cur].name, actions[ans]);
-    else if(ans == 1) //steal
-      printf("\nplayer %s: player %s attempted to %s from %s\n", people[temp].name, people[cur].name, turnActions[ans], people[def].name);
-    else if(ans == 2) //assinate
-      printf("\nplayer %s: player %s attempted to %s %s\n", people[temp].name, people[cur].name, turnActions[ans], people[def].name);
-    else
-      printf("\nplayer %s: player %s attempted to %s\n", people[temp].name, people[curPlayer].name, turnActions[ans]);
-    if(ans != 5)
-      printf("0. allow   1. challenge   ");
-    int size = 2;
-    switch(ans) {
-      //tax, exchange, is default
-      //income, coup not blocked
-    case 1: //steal
-      if(temp == def) {
-	printf("2. block with %s   3. block with %s\n", cards[1], cards[3]);
-	size = 4;
-      } else {
-	printf("\n");
-      }
-      break;
-    case 2: //assassinate
-      if(temp == def) {
-	printf("2. block with %s\n", cards[4]);
-	size = 3;
-      } else {
-	printf("\n");
-      }
-      break;
-    case 5: //foreign-aid
-      printf("0. allow   1. block with duke\n");
-      size = 2;
-      break;
-    default:
-      printf("\n");
-    }
-    getInput();
-    check(size);
-    int tCounter;
-    int tAns = atoi(input);
-    if(ans == 2 && temp == def && tAns == 0) { //assassination happens
-      reveal(def);
-      return 1;
-    } else if(ans == 2 && temp == def && tAns == 1) {
-      result = challenge(temp, cur, ans);
-      if(result == 0) { //cur did have assassin
-	reveal(temp);
-      }
-      return 1;
-    } else if(ans == 2 && tAns == 2) { //block with contessa, temp == def
-      printf("you attempted to block with %s\nwaitng for challenges\n\n", cards[4]);
-      for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
-	int tTemp = (tCounter + temp) % numPlayer;	  
-	printf("player %s, player %s attempted to block with %s\n", people[tTemp].name, people[temp].name, cards[4]);
-	printf("0. allow   1. challenge\n");
-	getInput();
-	check(2);
-	int tTAns = atoi(input);
-	if(tTAns == 0) {
-	  people[curPlayer].wealth -= 2;
+    if(people[temp].revealed != 3) {
+      if(temp == def)
+	printf("\nplayer %.100s: player %.100s attempted to %.100s\n", people[temp].name, people[cur].name, actions[ans]);
+      else if(ans == 1) //steal
+	printf("\nplayer %.100s: player %.100s attempted to %.100s from %.100s\n", people[temp].name, people[cur].name, turnActions[ans], people[def].name);
+      else if(ans == 2) //assinate
+	printf("\nplayer %.100s: player %.100s attempted to %.100s %.100s\n", people[temp].name, people[cur].name, turnActions[ans], people[def].name);
+      else
+	printf("\nplayer %.100s: player %.100s attempted to %.100s\n", people[temp].name, people[curPlayer].name, turnActions[ans]);
+      if(ans != 5)
+	printf("0. allow   1. challenge   ");
+      int size = 2;
+      switch(ans) {
+	//tax, exchange, is default
+	//income, coup not blocked
+      case 1: //steal
+	if(temp == def) {
+	  printf("2. block with %.100s   3. block with %.100s\n", cards[1], cards[3]);
+	  size = 4;
+	} else {
+	  printf("\n");
 	}
-	if(tTAns == 1) { //challenge
-	  result = challenge(tTemp, temp, 4);
-	  if(result == 1) { // temp didnt have contessa
-	    reveal(temp);
+	break;
+      case 2: //assassinate
+	if(temp == def) {
+	  printf("2. block with %.100s\n", cards[4]);
+	  size = 3;
+	} else {
+	  printf("\n");
+	}
+	break;
+      case 5: //foreign-aid
+	printf("0. allow   1. block with duke\n");
+	size = 2;
+	break;
+      default:
+	printf("\n");
+      }
+      getInput();
+      check(size);
+      int tCounter;
+      int tAns = atoi(input);
+      if(ans == 2 && temp == def && tAns == 0) { //assassination happens
+	printf("player %.100s: you must reveal an influence\n", people[temp].name);
+	reveal(def);
+	return 1;
+      } else if(ans == 2 && temp == def && tAns == 1) {
+	result = challenge(temp, cur, ans);
+	if(result == 0) { //cur did have assassin
+	  printf("player %.100s: you must reveal an influence\n", people[temp].name);
+	  reveal(temp);
+	}
+	return 1;
+      } else if(ans == 2 && tAns == 2) { //block with contessa, temp == def
+	printf("you attempted to block with %.100s\nwaitng for challenges\n\n", cards[4]);
+	for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
+	  int tTemp = (tCounter + temp) % numPlayer;
+	  if(people[tTemp].revealed != 3) {
+	    printf("player %.100s, player %.100s attempted to block with %.100s\n", people[tTemp].name, people[temp].name, cards[4]);
+	    printf("0. allow   1. challenge\n");
+	    getInput();
+	    check(2);
+	    int tTAns = atoi(input);
+	    if(tTAns == 1) { //challenge
+	      result = challenge(tTemp, temp, 4);
+	      if(result == 1) { // temp didnt have contessa
+		reveal(temp);
+	      }
+	      //need to break for loop;
+	      //need to undo action of challenged
+	      break; //uhhh
+	    }
 	  }
-	  //need to break for loop;
-	  //need to undo action of challenged
-	  break; //uhhh
 	}
-      }
-    } else if(ans == 5 && tAns == 1) { //foreign-aid
-      printf("you attempted to block with %s\nwaiting for challenges\n\n", cards[0]);
-      for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
-	int tTemp = (tCounter + temp) % numPlayer;	  
-	printf("player %s, player %s attempted to block with duke\n", people[tTemp].name, people[temp].name);
-	printf("0. allow   1. challenge\n");
-	getInput();
-	check(2);
-	int tTAns = atoi(input);
-	if(tTAns == 0) {
-	  people[curPlayer].wealth -= 2;
-	}
-	if(tTAns == 1) { //challenge
-	  result = challenge(tTemp, temp, 0);
+      } else if(ans == 5 && tAns == 1) { //foreign-aid
+	printf("you attempted to block with %.100s\nwaiting for challenges\n\n", cards[0]);
+	for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
+	  int tTemp = (tCounter + temp) % numPlayer;
+	  if(people[tTemp].revealed != 3) {
+	    printf("player %.100s, player %.100s attempted to block with duke\n", people[tTemp].name, people[temp].name);
+	    printf("0. allow   1. challenge\n");
+	    getInput();
+	    check(2);
+	    int tTAns = atoi(input);
+	    if(tTAns == 1) { //challenge
+	      result = challenge(tTemp, temp, 0);
 	      
-	  //need to break for loop;
-	  //need to undo action of challenged
-	  break; 
+	      //need to break for loop;
+	      //need to undo action of challenged
+	      break; 
+	    }
+	  }
 	}
-      }
-      return 1;
-    } else if(ans == 1 && (tAns == 2 || tAns == 3)) { //implicit temp == def
-      int reCard;
-      if(tAns == 2)
-	reCard = 1;
-      if(tAns == 3)
-	reCard = 3;
+	return 1;
+      } else if(ans == 1 && (tAns == 2 || tAns == 3)) { //implicit temp == def
+	int reCard;
+	if(tAns == 2)
+	  reCard = 1;
+	if(tAns == 3)
+	  reCard = 3;
       
-      printf("you attempted to block with %s\nwaiting for challenges\n\n", cards[reCard]);
-      for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
-	int tTemp = (tCounter + temp) % numPlayer;	  
-	printf("player %s, player %s attempted to block with %s\n", people[tTemp].name, people[temp].name, cards[reCard]);
-	printf("0. allow   1. challenge\n");
-	getInput();
-	check(2);
-	int tTAns = atoi(input);
-	if(tTAns == 0) {
-	  people[curPlayer].wealth -= 2;
-	}
-	if(tTAns == 1) { //challenge
-	  result = challenge(tTemp, temp, 0);
+	printf("you attempted to block with %.100s\nwaiting for challenges\n\n", cards[reCard]);
+	for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
+	  int tTemp = (tCounter + temp) % numPlayer;
+	  if(people[temp].revealed != 3) {
+	    printf("player %.100s, player %.100s attempted to block with %.100s\n", people[tTemp].name, people[temp].name, cards[reCard]);
+	    printf("0. allow   1. challenge\n");
+	    getInput();
+	    check(2);
+	    int tTAns = atoi(input);
+	    if(tTAns == 1) { //challenge
+	      result = challenge(tTemp, temp, 0);
 	      
-	  //need to break for loop;
-	  //need to undo action of challenged
-	  break;
+	      //need to break for loop;
+	      //need to undo action of challenged
+	      break;
+	    }
+	  }
 	}
+	return 1; //steal happens, other players dont need to challenge anymore?
+      } else if(tAns == 1) { //challenge tax, exchange
+	result = challenge(temp, cur, ans);
+	//need to break for loop;
+	//need to undo action of challenged
+	return 1;
+      } else { //tAns == 0 allow
+	;
       }
-      return 1; //steal happens, other players dont need to challenge anymore?
-    } else if(tAns == 1) { //challenge tax, exchange
-      result = challenge(temp, cur, ans);
-      //need to break for loop;
-      //need to undo action of challenged
-      return 1;
-    } else { //tAns == 0 allow
-      ;
     }
   }
 }
 
-void turn() {
-  //needed for printing chat hist?
-  orders[ocounter] = curPlayer;
-  ocounter++;
-  printf("your turn!\n%d: player %s\n0. tax   1. steal   2. assassinate   3. exchange   4. income   5. foreign-aid   6. coup\nenter the action you wish to do:\n", curPlayer, people[curPlayer].name);
+int chooseAction() {
+  printf("your turn!\n%d: player %.100s\n0. tax   1. steal   2. assassinate   3. exchange   4. income   5. foreign-aid   6. coup\nenter the action you wish to do:\n", curPlayer, people[curPlayer].name);
   getInput();
   check(7);
   
   int ans = atoi(input);
-  orders[ocounter] = ans;
-  int redo;
-  //switches???
+  while(((ans == 0 || ans == 4 || ans == 5) && people[curPlayer].wealth == 10) ||
+	(ans == 2 && people[curPlayer].wealth < 3) ||
+	(ans == 6 && people[curPlayer].wealth < 7)) {
+    if(ans == 0 || ans == 4 || ans == 5)
+      printf("you can no longer gain wealth, choose another action\n");
+    if(ans == 2)
+      printf("you cannot assassinate, choose another action\n");
+    if(ans == 6)
+      printf("you cannot coup, choose another action\n");
+    getInput();
+    check(7);
+    ans = atoi(input);
+  }
+  return ans;
+}
+
+void actionEffect(int ans) {
   switch(ans) {
   case 0:
     tax(curPlayer);
@@ -529,7 +538,7 @@ void turn() {
     exchange(curPlayer);
     break;
   case 4:
-    redo = income(curPlayer);
+    income(curPlayer);
     break;
   case 5:
     foreignAid(curPlayer);
@@ -542,17 +551,28 @@ void turn() {
   }
 }
 
+void turn() {
+  //needed for printing chat hist?
+  orders[ocounter] = curPlayer;
+  ocounter++;
+ 
+  int ans = chooseAction();
+  orders[ocounter] = ans;
+  //switches???
+  actionEffect(ans);
+}
+
 void gameEnd() {
   int deadPlayers = 0;
   int winner;
   for(counter = 0; counter < numPlayer; counter++) {
-    if(people[counter].i1[0] == 'D' && people[counter].i2[0] == 'D')
+    if(people[counter].revealed == 3)
       deadPlayers++;
     else
       winner = counter;
   }
   if(deadPlayers + 1 == numPlayer) { //only one man standing
-    printf("player %s won!!!\n", people[winner].name);
+    printf("player %.100s won!!!\n", people[winner].name);
     printf("-----GAME END-----\n");
     endGame = 0;
   }
@@ -579,8 +599,9 @@ int runGame() {
     //undo action
     printf("\n\n\n");
     printInfo(curPlayer);
+    print(9);
     //skip dead players
-    if(people[curPlayer].i1[0] == 'D' && people[curPlayer].i2[0] == 'D') {
+    if(people[curPlayer].revealed == 3) {
       curPlayer++;
       curPlayer = curPlayer % numPlayer;
     } else {
