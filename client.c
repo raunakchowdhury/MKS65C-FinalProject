@@ -9,9 +9,9 @@ int respond(int server_socket){
    * Lets the client know if they should be responding or not
    */
    char buffer[BUFFER_SIZE];
-   printf("\nreading for permission...\n" );
+   printf("\nReading..\n" );
    read(server_socket, buffer, sizeof(buffer));
-   printf("Comparing...\n");
+   printf("\nRecieved: [%s]\n", buffer);
 
    // send junk to facilitate next read
    // write(server_socket, "ye", sizeof("ye"));

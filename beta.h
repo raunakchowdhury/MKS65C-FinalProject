@@ -31,8 +31,6 @@ struct player {
   int revealed;
 };
 
-char tString[charMax];
-int orders[1000];
 int curPlayer;
 int numPlayer;
 int ocounter = 0;
@@ -44,8 +42,6 @@ char endGame = 1;
 int court[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int counter;
 int randLoc;
-char ** names;
-// = calloc( numClients, sizeof(char) * charMax);
 char cards[5][charMax] = {"\x1B[35mDUKE\x1B[0m",
 	   "\x1B[36mCAPTAIN\x1B[0m",
 	   "\x1B[90mASSASSIN\x1B[0m",
