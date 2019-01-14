@@ -113,11 +113,11 @@ void setup() {
   for(counter = 0; counter < numPlayer; counter++) {
     //populates name, wealth
     struct player cur = people[counter];
-    printf("player %d, please enter your name:\n", counter);
-    getInput();
-    strcpy(people[counter].name, BLU);
-    strcat(people[counter].name, input);
-    strcat(people[counter].name, NRM);
+    /* printf("player %d, please enter your name:\n", counter); */
+    /* getInput(); */
+    /* strcpy(people[counter].name, BLU); */
+    /* strcat(people[counter].name, input); */
+    /* strcat(people[counter].name, NRM); */
     people[counter].wealth = 7;
     people[counter].revealed = 0;
     //populates court, i1, i2
@@ -591,7 +591,7 @@ void gameEnd() {
   }
 }
 
-int playersJoin() {
+char ** playersJoin() {
   printf("-----COUP-----\n");
   printf("enter \'exit\' if you ever wish to close the game\n\n\n");
   printf("hello, player 1 enter the number of players: (max 5)\n");
@@ -599,11 +599,23 @@ int playersJoin() {
   check(6);
   numPlayer = atoi(input); 
   people = calloc(numPlayer, sizeof(struct player));
-  
-  setup();
+  char names[numPlayer][charMax];
+  for(counter = 0; counter < numPlayer; counter++) {
+    printf("player %d, please enter your name:\n", counter);
+    getInput();
+    strcpy(names[counter], BLU);
+    strcat(names[counter], input);
+    strcat(names[counter], NRM);
+  }
 }
 
-int runGame() {
+int runGame(char ** names) {
+  for(counter = 0; counter < numPlayer; counter++) {
+    //populates name, wealth
+    struct player cur = people[counter];
+    strcpy(people[counter].name, names[counter]);
+  }
+  setup();
   curPlayer = myrand() % numPlayer;
   //otherFunction
   while(endGame) {
@@ -633,6 +645,6 @@ int runGame() {
 
 //limit inputs to only acceptable answers
 int main() {
-  playersJoin();
-  runGame();
+  char nameS[5][charMax] = playersJoin();
+  runGame(nameS);
 }
