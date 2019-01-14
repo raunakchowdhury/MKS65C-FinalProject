@@ -1,6 +1,14 @@
 #include "beta.h"
-
+//#include ..
 //random number from 0-14
+
+//ur current main -> playersJoin() return char[0-4][]
+//map 0-4 -> client_socket
+//getInput(2)
+//read(input, map[2]);
+
+
+
 int myrand() {
   int randD = open("/dev/random", O_RDONLY);
   if(randD < 0)
@@ -15,7 +23,7 @@ int myrand() {
   }
 }
 
-//getInput(int cur)
+//char * getInput(int cur)
 
 //printTo(int cur)
 // -printf replacement, printInfo replacement
@@ -42,6 +50,11 @@ void print(int client) {
   printf("%d\n%s", client, line);
 }
 
+
+//int 9 ->print to every
+//int 0-4 print()
+//printBuff
+//write(map[4], printBuff)
 void printInfo(int cur) {
   char info[charMax] = "";
   strcat(info, "-----player info-----\n");
@@ -586,10 +599,11 @@ int playersJoin() {
   check(6);
   numPlayer = atoi(input); 
   people = calloc(numPlayer, sizeof(struct player));
+  
+  setup();
 }
 
 int runGame() {
-  setup();
   curPlayer = myrand() % numPlayer;
   //otherFunction
   while(endGame) {

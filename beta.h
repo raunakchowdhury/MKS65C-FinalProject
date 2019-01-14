@@ -88,15 +88,16 @@ int runGame();
 //challenging
 
 
-struct subserver {
-  int from_child;
-  int to_child;
+
+#define BUFFER_SIZE 256
+#define MAX 5 //adjust this val for num of players
+
+struct client {
+  int client_socket;
+  char name[charMax];
 };
 
-// subserver stuff
-void play_game(int client_socket, int from_parent, int to_parent);
+void announce(struct client clients[], int num_players, char * msg);
 
 // server stuff
-void master_game(struct subserver subservers[]);
-
-
+void master_game(struct client clients[]);

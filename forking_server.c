@@ -1,5 +1,5 @@
 #include "networking.h"
-#include "game.h"
+#include "beta.h"
 
 int player_num;
 

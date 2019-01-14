@@ -12,12 +12,9 @@
 # include <errno.h>
 # include <signal.h>
 
-# include "beta.h"
-
-
 #define BUFFER_SIZE 256
 #define MAX 5 //adjust this val for num of players
-
+#define charMax 1024
 // 3 of each class
 // stack
 int deck[15];
