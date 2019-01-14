@@ -27,8 +27,10 @@ int myrand() {
 
 //printTo(int cur)
 // -printf replacement, printInfo replacement
-void getInput() {
-  printf("%.100s- ", BLU);
+void getInput(int cur) {
+  //buf = clientInput(cur);
+  //strcpy(input, buf);
+  printf("%.100s%d- ", BLU, cur);
   fgets(input, sizeof(input), stdin);
   printf("%.100s", NRM);
   input[strlen(input) - 1] = 0; //removes newLine
@@ -92,7 +94,7 @@ void printHistory() {
 	   people[orders[counter]].name, turnActions[orders[counter+1]]);
 }
 
-void check( int size) {
+void check(int cur, int size) {
   int correct = 1;
   for(counter = 0; counter < size; counter++) {
     if (strcmp(input, accepted[counter]) == 0)
@@ -100,7 +102,7 @@ void check( int size) {
   }
   while(correct == 1) {
     printf("your input does not match with the options provided\nre-enter\n");
-    getInput();
+    getInput(cur);
     for(counter = 0; counter < size; counter++) {
       if (strcmp(input, accepted[counter]) == 0)
 	correct = 0;
@@ -156,8 +158,8 @@ void steal(int cur) {
     }
   }
   printf("\n");
-  getInput();
-  check(ansC);
+  getInput(cur);
+  check(cur, ansC);
   int tAns = atoi(input);
   tAns = answers[tAns];
   printf("you attempted to steal from player %.100s...\nwaiting for blocks/challenges...\n", people[tAns].name);
@@ -186,8 +188,8 @@ void assassinate(int cur) {
     }
   }
   printf("\n");
-  getInput();
-  check(ansC);
+  getInput(cur);
+  check(cur, ansC);
   int tAns = atoi(input);
   tAns = answers[tAns];
   printf("you attempted to assassinate player %.100s...\nwaiting for player %.100s to reveal an influence...\n", people[tAns].name, people[tAns].name);
@@ -237,8 +239,8 @@ void exchange(int cur) {
   default:
     printf("2. %.100s   3. %.100s\n", cards[options[2] / 3], cards[options[3] / 3]);
   }
-  getInput();
-  check(size);
+  getInput(cur);
+  check(cur, size);
   int ans = atoi(input);
   if(size == 3) {
     if(ans == 0 || ans == 1) {
@@ -274,8 +276,8 @@ void exchange(int cur) {
     //move done one to far right
     printf("choose another role to keep:\n");
     printf("0. %.100s   1. %.100s   2. %.100s\n", cards[options[0] / 3], cards[options[1] / 3], cards[options[2] / 3]);
-    getInput();
-    check(3);
+    getInput(cur);
+    check(cur, 3);
     int tAns = atoi(input);
     if(strcmp(people[cur].i2, cards[options[tAns] / 3]) == 0) {
       printf("nothing changed\n"); 
@@ -315,7 +317,8 @@ void coup(int cur) {
       printf("%d. player %.100s   ", counter - 1, people[counter].name);
   }
   printf("\n");
-  getInput(numPlayer - 1);
+  getInput(cur);
+  check(cur, numPlayer - 1);
   int tAns = atoi(input);
   printf("you staged a coup...\nwaiting for player %.100s to reveal an influence...\n", people[tAns].name);
   if(tAns >= cur)
@@ -344,7 +347,8 @@ void reveal(int cur) {
     answers[1] = 2;
     size = 2;
   }
-  getInput(size);
+  getInput(cur);
+  check(cur, size);
   int ans = atoi(input);
   char dead[charMax] = "DEAD ";
   ans = answers[ans];
@@ -420,8 +424,8 @@ int block(int cur, int def, int ans) {
       default:
 	printf("\n");
       }
-      getInput();
-      check(size);
+      getInput(temp);
+      check(temp, size);
       int tCounter;
       int tAns = atoi(input);
       if(ans == 2 && temp == def && tAns == 0) { //assassination happens
@@ -442,8 +446,8 @@ int block(int cur, int def, int ans) {
 	  if(people[tTemp].revealed != 3) {
 	    printf("player %.100s, player %.100s attempted to block with %.100s\n", people[tTemp].name, people[temp].name, cards[4]);
 	    printf("0. allow   1. challenge\n");
-	    getInput();
-	    check(2);
+	    getInput(tTemp);
+	    check(tTemp, 2);
 	    int tTAns = atoi(input);
 	    if(tTAns == 1) { //challenge
 	      result = challenge(tTemp, temp, 4);
@@ -463,8 +467,8 @@ int block(int cur, int def, int ans) {
 	  if(people[tTemp].revealed != 3) {
 	    printf("player %.100s, player %.100s attempted to block with duke\n", people[tTemp].name, people[temp].name);
 	    printf("0. allow   1. challenge\n");
-	    getInput();
-	    check(2);
+	    getInput(tTemp);
+	    check(tTemp, 2);
 	    int tTAns = atoi(input);
 	    if(tTAns == 1) { //challenge
 	      result = challenge(tTemp, temp, 0);
@@ -489,8 +493,8 @@ int block(int cur, int def, int ans) {
 	  if(people[temp].revealed != 3) {
 	    printf("player %.100s, player %.100s attempted to block with %.100s\n", people[tTemp].name, people[temp].name, cards[reCard]);
 	    printf("0. allow   1. challenge\n");
-	    getInput();
-	    check(2);
+	    getInput(tTemp);
+	    check(tTemp, 2);
 	    int tTAns = atoi(input);
 	    if(tTAns == 1) { //challenge
 	      result = challenge(tTemp, temp, 0);
@@ -516,8 +520,8 @@ int block(int cur, int def, int ans) {
 
 int chooseAction() {
   printf("your turn!\n%d: player %.100s\n0. tax   1. steal   2. assassinate   3. exchange   4. income   5. foreign-aid   6. coup\nenter the action you wish to do:\n", curPlayer, people[curPlayer].name);
-  getInput();
-  check(7);
+  getInput(curPlayer);
+  check(curPlayer, 7);
   
   int ans = atoi(input);
   while(((ans == 0 || ans == 4 || ans == 5) && people[curPlayer].wealth == 10) ||
@@ -529,8 +533,8 @@ int chooseAction() {
       printf("you cannot assassinate, choose another action\n");
     if(ans == 6)
       printf("you cannot coup, choose another action\n");
-    getInput();
-    check(7);
+    getInput(curPlayer);
+    check(curPlayer, 7);
     ans = atoi(input);
   }
   return ans;
@@ -591,30 +595,29 @@ void gameEnd() {
   }
 }
 
-char ** playersJoin() {
+int playersJoin() {
   printf("-----COUP-----\n");
   printf("enter \'exit\' if you ever wish to close the game\n\n\n");
-  printf("hello, player 1 enter the number of players: (max 5)\n");
-  getInput();
-  check(6);
+  printf("hello, player 0 enter the number of players: (max 5)\n");
+  getInput(0);
+  check(0, 6);
   numPlayer = atoi(input); 
   people = calloc(numPlayer, sizeof(struct player));
-  char names[numPlayer][charMax];
   for(counter = 0; counter < numPlayer; counter++) {
     printf("player %d, please enter your name:\n", counter);
-    getInput();
-    strcpy(names[counter], BLU);
-    strcat(names[counter], input);
-    strcat(names[counter], NRM);
+    getInput(counter);
+    strcpy(people[counter].name, BLU);
+    strcat(people[counter].name, input);
+    strcat(people[counter].name, NRM);
   }
 }
 
-int runGame(char ** names) {
-  for(counter = 0; counter < numPlayer; counter++) {
-    //populates name, wealth
-    struct player cur = people[counter];
-    strcpy(people[counter].name, names[counter]);
-  }
+int runGame() {
+  /* for(counter = 0; counter < numPlayer; counter++) { */
+  /*   //populates name, wealth */
+  /*   struct player cur = people[counter]; */
+  /*   strcpy(people[counter].name, names[counter]); */
+  /* } */
   setup();
   curPlayer = myrand() % numPlayer;
   //otherFunction
@@ -645,6 +648,6 @@ int runGame(char ** names) {
 
 //limit inputs to only acceptable answers
 int main() {
-  char nameS[5][charMax] = playersJoin();
-  runGame(nameS);
+  playersJoin();
+  runGame();
 }

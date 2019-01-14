@@ -59,12 +59,12 @@ char accepted[10][charMax] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 struct player * people;
 
 int myrand();
-void getInput();
+void getInput(int cur);
 int findLoc(int value);
 void print(int client);
 void printInfo(int cur);
 void printHistory(); //needs reworking
-void check(int size);
+void check(int cur, int size);
 
 void setup();
 
@@ -85,8 +85,8 @@ void actionEffect(int ans);
 void turn();
 void gameEnd();
 
-char ** playersJoin();
-int runGame(char ** names);
+int playersJoin();
+int runGame();
 //challenging
 
 
