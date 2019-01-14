@@ -1,11 +1,6 @@
 #include "networking.h"
 #include "beta.h"
-
-int player_num;
-
-void process(char *s);
-void subserver(int from_client, int from_parent, int to_parent);
-int is_valid_input(char buffer[], char ** possible_choices);
+#include "server.h"
 
 // handle the SIGINT singla by deleting the well_known_pipe(WKP)
 static void sighandler(int signo){
@@ -84,9 +79,7 @@ int main() {
         write(clients[i].client_socket, msg, sizeof(msg));
         // Give client permission to respond
         write(clients[i].client_socket, "y", sizeof("y"));
-        // read(clients[i].client_socket, buffer, sizeof(buffer));
-        // write(clients[i].client_socket, "1", sizeof("1"));
-        //printf("Sent message!\n");
+        printf("Sent message!\n");
         read(clients[i].client_socket, buffer, sizeof(buffer));
 
         // tally up yesses
@@ -110,12 +103,12 @@ int main() {
       printf("%s\n", msg);
     }
   }
-
+  char ** names = calloc(player_num, sizeof(char) * charMax);
   strcpy(msg, "\n\nStarting game!\n" );
   // Notify all players
   announce(clients, player_num, msg);
   printf("\n\nStarting game!\n");
-
+  free(names);
   //mmaster_game(clients); //does all the game control stuff
 }
 
@@ -132,24 +125,19 @@ void announce(struct client clients[], int num_players, char* msg){
    }
 }
 
-void subserver(int client_socket, int from_parent, int to_parent) {
-
-  // play_game(client_socket, from_parent, to_parent);
-  printf("Player %d has left the game.\n", player_num );
-  close(client_socket);
-  exit(0);
-}
-
-void process(char * s) {
-  /*
-  This would be the in-game process transmitted to the server?
-  */
-  while (*s) {
-    if (*s >= 'a' && *s <= 'z')
-      *s = ((*s - 'a') + 13) % 26 + 'a';
-    else  if (*s >= 'A' && *s <= 'Z')
-      *s = ((*s - 'a') + 13) % 26 + 'a';
-    s++;
-  }
-
-}
+// char** gameSetup() {
+// ask clients for names, put clientNumbers in int map[]
+// return names in relative order
+// //shouldnt matter as long as there is a constant order
+// }
+//
+// clientinput(int cur) {
+// int clientNumber = map[cur];
+// read(clientNumber, buf, charMax);
+// return buf;
+// }
+//
+// sendtoclient(int cur, char * buf) {
+// int clientNumber = map[cur];
+// write(clientNumber, buf, charMax);
+// }

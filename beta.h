@@ -88,18 +88,3 @@ void gameEnd();
 int playersJoin();
 int runGame();
 //challenging
-
-
-
-#define BUFFER_SIZE 256
-#define MAX 5 //adjust this val for num of players
-
-struct client {
-  int client_socket;
-  char name[charMax];
-};
-
-void announce(struct client clients[], int num_players, char * msg);
-
-// server stuff
-void master_game(struct client clients[]);
