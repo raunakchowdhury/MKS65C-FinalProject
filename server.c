@@ -155,6 +155,7 @@ char * clientinput(int cur){
    // input[strlen(input) - 1] = 0; //removes newLine
 
   char buffer[BUFFER_SIZE];
+  printf("asking %d\n", cur);
   strcpy(buffer, "Make a choice!");
   struct client player = clients[cur];
   write(player.client_socket, buffer, sizeof(buffer));
