@@ -142,7 +142,6 @@ void announce(char msg[]){
    char buffer[BUFFER_SIZE];
    strcpy(buffer, msg);
    for (i = 0; i < player_num; i++){
-     printf("Printing to client %d\n", i);
      write(clients[i].client_socket, buffer, sizeof(buffer));
      // write(clients[i].client_socket, "n", sizeof("n"));
    }

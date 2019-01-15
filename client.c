@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
       exit(0);
     }
     if (strcmp("Make a choice!", buffer) == 0) {
-      printf("enter response: ");
 
       printf("%s- ", BLU);
       fgets(buffer, sizeof(buffer), stdin);
@@ -46,7 +45,7 @@ int main(int argc, char **argv) {
       write(server_socket, buffer, sizeof(buffer));
     }
     else{
-      printf("%s\n", buffer);
+      printf("%s", buffer);
     }
     readResult = read(server_socket, buffer, sizeof(buffer));
   }

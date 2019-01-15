@@ -64,7 +64,7 @@ int myrand() {
   if(randD < 0)
     return 0;
   else {
-    int *number = calloc(1, sizeof(int));
+    int * number = (int *) calloc(1, sizeof(int));
     int result = read(randD, number, sizeof number);
     if (result < 0)
       return 0;
@@ -106,9 +106,14 @@ void tax(int cur) {
   print(9);
   int re = block(cur, 9, 0);
   if(re != 10) {
+    sprintf(line, "%.100s taxed\n", people[cur].name);
+    print(9);
     people[cur].wealth += 3;
     if(people[cur].wealth > 10)
       people[cur].wealth = 10;
+  } else {
+    sprintf(line, "%.100s failed to tax\n", people[cur].name);
+    print(9);
   }
 }
 
@@ -137,13 +142,19 @@ void steal(int cur) {
   print(9);
   int re = block(cur, tAns, 1);
   if(re != 10) {
+    sprintf(line, "%.100s stole from %.100s\n", people[cur].name, people[tAns].name);
+    print(9);
     people[cur].wealth += 2;
     people[tAns].wealth -= 2;
     if(people[cur].wealth > 10)
       people[cur].wealth = 10;
     if(people[tAns].wealth < 0)
       people[tAns].wealth = 0;
+  } else {
+    sprintf(line, "%.100s failed to steal from %.100s\n", people[cur].name, people[tAns].name);
+    print(9);
   }
+
 }
 
 void assassinate(int cur) {
@@ -178,6 +189,8 @@ void exchange(int cur) {
   print(9);
   int re = block(cur, 9, 3);
   if(re != 10) {
+    sprintf(line, "%.100s exchanged influences\n", people[cur].name);
+    print(9);
     int options[4];
     int tempN = 0;
     int size = 4;
@@ -274,6 +287,9 @@ void exchange(int cur) {
 	court[options[tAns]] = 20 + cur;
       }
     }
+  } else {
+    sprintf(line, "%.100s failed to exchange\n", people[cur].name);
+    print(9);
   }
 }
 
@@ -290,10 +306,16 @@ void foreignAid(int cur) {
   print(9);
   int re = block(cur, 9, 5);
   if(re != 10) {
+    sprintf(line, "%.100s drew foreign-aid\n", people[cur].name);
+    print(9);
     people[cur].wealth += 2;
     if(people[cur].wealth > 10)
       people[cur].wealth = 10;
+  } else {
+    sprintf(line, "%.100s failed to draw foreign-aid", people[cur].name);
+    print(9);
   }
+
 }
 
 void coup(int cur) {
@@ -321,7 +343,7 @@ void coup(int cur) {
   sprintf(line, "%.100s staged a coup...\nwaiting for %.100s to reveal an influence...\n", people[cur].name, people[tAns].name);
   print(9);
   //reveal(int cur)  tAns
-  sprintf(line, "\n%.100s staged a coup on %.100s\n%.100s must reveal an influence:\n", people[cur].name, people[tAns].name, people[tAns].name);
+  sprintf(line, "\n%.100s staged a coup on %.100s\n%.100s must reveal an influence\n", people[cur].name, people[tAns].name, people[tAns].name);
   print(9);
   reveal(tAns);
 
@@ -373,12 +395,12 @@ void reveal(int cur) {
 int challenge(int challenger, int challenged, int card) {
   if(strcmp(people[challenged].i1, cards[card]) == 0 ||
      strcmp(people[challenged].i2, cards[card]) == 0) { //failed challege
-    sprintf(line, "\n%.100s failed to challenge %.100s\n%.100s must reveal an influence: \n", people[challenger].name, people[challenged].name, people[challenger].name);
+    sprintf(line, "\n%.100s failed to challenge %.100s\n%.100s must reveal an influence \n", people[challenger].name, people[challenged].name, people[challenger].name);
     print(9);
     reveal(challenger);
     return 0;
   } else { //successful challenge
-    sprintf(line, "\n%.100s successfully challenged %.100s\n%.100s must reveal an influence:\n", people[challenger].name, people[challenged].name, people[challenged].name);
+    sprintf(line, "\n%.100s successfully challenged %.100s\n%.100s must reveal an influence\n", people[challenger].name, people[challenged].name, people[challenged].name);
     print(9);
     reveal(challenged);
     return 1;
@@ -456,6 +478,8 @@ int block(int cur, int def, int ans) {
 	sprintf(line, "%.100s must reveal an influence\n", people[temp].name);
 	print(9);
 	reveal(def);
+  sprintf(line, "%.100s assassinated %.100s", people[cur].name, people[temp].name);
+  print(9);
 	return 1;
       } else if(ans == 2 && temp == def && tAns == 1) {
 	result = challenge(temp, cur, ans);
@@ -463,6 +487,8 @@ int block(int cur, int def, int ans) {
 	  sprintf(line, "%.100s must reveal an influence\n", people[temp].name);
 	  print(9);
 	  reveal(temp);
+    sprintf(line, "%.100s assassinated %.100s", people[cur].name, people[temp].name);
+    print(9);
 	}
 	return 1;
       } else if(ans == 2 && tAns == 2) { //block with contessa, temp == def
@@ -483,6 +509,8 @@ int block(int cur, int def, int ans) {
 	      result = challenge(tTemp, temp, 4);
 	      if(result == 1) { // temp didnt have contessa
 		reveal(temp);
+    sprintf(line, "%.100s assassinated %.100s, %.100s did not have a %.100s", people[cur].name, people[temp].name, people[temp].name, cards[4]);
+    print(9);
 	      }
 	      break;
 	    }
