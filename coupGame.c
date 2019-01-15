@@ -278,6 +278,8 @@ void exchange(int cur) {
 }
 
 void income(int cur) {
+  sprintf(line, "%.100s drew income...\n", people[cur].name);
+  print(9);
   people[cur].wealth++;
   if(people[cur].wealth > 10)
     people[cur].wealth = 10;
@@ -717,13 +719,13 @@ void runGame() {
     //action effect
     sprintf(line, "\n\n\n");
     print(9);
-    //int c;
-    //for(c = 0; c < numPlayers; c++) {
-      printInfo(curPlayer);
-      //printInfo(c);
-      //print(c);
-      print(9);
-      //}
+    int c;
+    for(c = 0; c < numPlayer; c++) {
+      //printInfo(curPlayer);
+      //print(9);
+      printInfo(c);
+      print(c);
+      }
     //skip dead players
     if(people[curPlayer].revealed == 3) {
       curPlayer++;
@@ -734,8 +736,6 @@ void runGame() {
       curPlayer++;
       curPlayer = curPlayer % numPlayer;
     }
-    sprintf(line, "\n\n\n");
-    print(9);
     gameEnd();
   }
 }

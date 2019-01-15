@@ -42,7 +42,7 @@ int main() {
     write(client_socket, buffer, sizeof(buffer));
 
     // Give client permission to respond
-    write(client_socket, "y", sizeof("y"));
+    write(client_socket, "Make a choice!", sizeof("Make a choice!"));
 
     // actual read
     read(client_socket, buffer, sizeof(buffer));
@@ -74,7 +74,7 @@ int main() {
         // printf("Sending message to %s...\n", clients[i].name);
         write(clients[i].client_socket, msg, sizeof(msg));
         // Give client permission to respond
-        write(clients[i].client_socket, "y", sizeof("y"));
+        write(clients[i].client_socket, "Make a choice!", sizeof("Make a choice!"));
         read(clients[i].client_socket, buffer, sizeof(buffer));
 
         // tally up yesses
@@ -106,18 +106,23 @@ int main() {
   // Notify all players
   announce(msg);
 
-  //runGame(player_num, names);
-    preSetup();
-    addPlayers(player_num, names);
-    //playersJoin();
-    setup();
-    runGame();
+  //sendtoclient(1, msg);
+
+
+  //
+  //
+//runGame(player_num, names);
+  preSetup();
+  addPlayers(player_num, names);
+  //playersJoin();
+  setup();
+  runGame();
 
   /* printf("\n\nStarting game!\n"); */
 
   /* strcpy(buffer, "\nTesting function!"); */
   // sendtoclient(0);
-  //clientinput(0);
+  // clientinput(0);
 }
 
 void gameSetup() {
@@ -129,7 +134,7 @@ void gameSetup() {
 
 
 
-void announce(char* msg){
+void announce(char msg[]){
   /*
    * Announces msg to all the players. No further action is needed from the players.
    */
@@ -137,8 +142,9 @@ void announce(char* msg){
    char buffer[BUFFER_SIZE];
    strcpy(buffer, msg);
    for (i = 0; i < player_num; i++){
+     printf("Printing to client %d\n", i);
      write(clients[i].client_socket, buffer, sizeof(buffer));
-     write(clients[i].client_socket, "n", sizeof("n"));
+     // write(clients[i].client_socket, "n", sizeof("n"));
    }
 }
 
@@ -155,12 +161,12 @@ char * clientinput(int cur){
    // input[strlen(input) - 1] = 0; //removes newLine
 
   char buffer[BUFFER_SIZE];
-  printf("asking %d\n", cur);
+  printf("\n\nasking %d to write!\n", cur);
   strcpy(buffer, "Make a choice!");
   struct client player = clients[cur];
   write(player.client_socket, buffer, sizeof(buffer));
   // printf("Filler sent!\n" );
-  write(player.client_socket, "y", sizeof("y"));
+  // write(player.client_socket, "y", sizeof("y"));
   // printf("Perm sent!\n" );
   read(player.client_socket, client_answer, sizeof(client_answer));
   return client_answer;
@@ -174,13 +180,14 @@ void sendtoclient(int cur, char line[]) {
    // you want it to announce to all
    char buf[BUFFER_SIZE];
    //strcpy(line, "erljkhgukghjkdbjkbdfjkbjkdfjkbjkb");
+   // strcpy(buf, "#@!");
+   // strcat(buf, line);
    strcpy(buf, line);
-   printf("\nBuffer: %s\n", buf);
+   printf("%s", buf);
    if (cur == 9){
-     announce(line);
+     announce(buf);
    }
    else{
      write(clients[cur].client_socket, buf, sizeof(buf));
-     write(clients[cur].client_socket, "n", sizeof("n"));
    }
 }
