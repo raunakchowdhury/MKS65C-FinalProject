@@ -1,5 +1,5 @@
 #include "networking.h"
-#include "beta.h"
+#include "coupGame.h"
 #include "server.h"
 
 // handle the SIGINT singla by deleting the well_known_pipe(WKP)
@@ -16,15 +16,7 @@ static void sighandler(int signo){
   }
 }
 
-void doGame() {
-
-
-
-}
-
 int main() {
-  int nu = 2;
-  char na [5][256]= { "ab", "cd"};
 
   player_num = 0;
   int listen_socket;
@@ -114,8 +106,12 @@ int main() {
   // Notify all players
   announce(msg);
 
-  runGame(player_num, names);
-
+  //runGame(player_num, names);
+    preSetup();
+    addPlayers(player_num, names);
+    //playersJoin();
+    setup();
+    runGame();
 
   /* printf("\n\nStarting game!\n"); */
 

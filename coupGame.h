@@ -31,8 +31,6 @@ int numPlayer;
 char line[charMax];
 char input[charMax];
 char endGame;
-//court: duke 0-2, captain 3-5, captain 6-8, ambassador 9-11, contessa 12-14
-//0 unassigned (still in court), 10-14 (i1), 20-24 (i2),
 int court[15];
 int counter;
 int randLoc;
@@ -42,12 +40,12 @@ char actions[7][charMax];
 char accepted[10][charMax];
 struct player * people;
 
-int myrand();
 void getInput(int cur);
-int findLoc(int value);
 void print(int client);
 void printInfo(int cur);
-void printHistory(); //needs reworking
+
+int myrand();
+int findLoc(int value);
 void check(int cur, int size);
 
 void tax(int cur);
@@ -59,7 +57,6 @@ void foreignAid(int cur);
 void coup(int cur);
 
 void reveal(int cur);
-// 0 for challenge failed, 1 for challenger succeeded
 int challenge(int challenger, int challengee, int card);
 int block(int cur, int def, int ans);
 int chooseAction();
@@ -68,7 +65,7 @@ void turn();
 void gameEnd();
 
 void preSetup();
-int playersJoin();
+void playersJoin();
 void addPlayers(int num, char names[5][256]);
 void setup();
 void runGame();
