@@ -1,7 +1,7 @@
 main: client server
 
-server: server.o networking.o game.o
-	gcc -o server server.o networking.o game.o
+server: server.o networking.o beta.o
+	gcc -o server server.o networking.o beta.o
 
 client: client.o networking.o
 	gcc -o client client.o networking.o
@@ -12,8 +12,8 @@ client.o: client.c networking.h
 server.o: server.c networking.h beta.h server.h
 	gcc -c server.c
 
-game.o: game.c game.h
-	gcc -c game.c
+beta.o: beta.c beta.h server.h
+	gcc -c beta.c
 
 networking.o: networking.c networking.h
 	gcc -c networking.c

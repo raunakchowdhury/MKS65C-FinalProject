@@ -12,7 +12,7 @@ struct client clients[MAX]; // array of players
 char client_answer[BUFFER_SIZE];
 
 
-int player_num = 0;
+int player_num;
 void announce(char * msg);
 
 // server stuff
@@ -20,6 +20,6 @@ void master_game(struct client clients[]);
 
 void gameSetup();
 
-void clientinput(int cur);
+char * clientinput(int cur);
 
-void sendtoclient(int cur, char * buf);
+void sendtoclient(int cur, char line[]);

@@ -33,25 +33,18 @@ struct player {
 
 int curPlayer;
 int numPlayer;
-int ocounter = 0;
 char line[charMax];
 char input[charMax];
-char endGame = 1;
+char endGame;
 //court: duke 0-2, captain 3-5, captain 6-8, ambassador 9-11, contessa 12-14
 //0 unassigned (still in court), 10-14 (i1), 20-24 (i2),
-int court[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int court[15];
 int counter;
 int randLoc;
-char cards[5][charMax] = {"\x1B[35mDUKE\x1B[0m",
-	   "\x1B[36mCAPTAIN\x1B[0m",
-	   "\x1B[90mASSASSIN\x1B[0m",
-	   "\x1B[33mAMBASSADOR\x1B[0m",
-	   "\x1B[31mCONTESSA\x1B[0m"};
-char turnActions[7][charMax] = {"tax", "steal", "assassinate",
-		"exchange", "income", "foreign-aid",
-		"coup"};
-char actions[7][charMax] = { "tax", "steal from you", "assassinate you", "exchange cards", "draw income", "draw foreign-aid", "coup"};
-char accepted[10][charMax] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+char cards[5][charMax];
+char turnActions[7][charMax];
+char actions[7][charMax];
+char accepted[10][charMax];
 struct player * people;
 
 int myrand();
@@ -82,5 +75,6 @@ void turn();
 void gameEnd();
 
 int playersJoin();
-int runGame();
+int runGame(int num, char names[5][256]);
+void preSetup();
 //challenging

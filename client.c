@@ -9,9 +9,9 @@ int respond(int server_socket){
    * Lets the client know if they should be responding or not
    */
    char buffer[BUFFER_SIZE];
-   printf("\nReading..\n" );
+   // printf("\nReading..\n" );
    read(server_socket, buffer, sizeof(buffer));
-   printf("\nRecieved: [%s]\n", buffer);
+   // printf("\nRecieved: [%s]\n", buffer);
 
    // send junk to facilitate next read
    // write(server_socket, "ye", sizeof("ye"));
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
     instructions = buffer;
 
     // if a response is needed from the client
-    if (respond(server_socket)){
+    if (respond(server_socket) == 1){
       // printf("reading buffer to determine response set...\n");
 
       // determine which set of integers is allowed

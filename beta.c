@@ -1,4 +1,5 @@
 #include "beta.h"
+#include "server.h"
 //#include ..
 //random number from 0-14
 
@@ -7,7 +8,81 @@
 //getInput(2)
 //read(input, map[2]);
 
+void preSetup() {
+  endGame = 1;
+  int d[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  memcpy(court, d, sizeof court);
 
+  char f[5][charMax] = {"\x1B[35mDUKE\x1B[0m",
+	   "\x1B[36mCAPTAIN\x1B[0m",
+	   "\x1B[90mASSASSIN\x1B[0m",
+	   "\x1B[33mAMBASSADOR\x1B[0m",
+	   "\x1B[31mCONTESSA\x1B[0m"};
+  memcpy(cards, f, sizeof cards);
+  char a[7][charMax] = {"tax", "steal", "assassinate",
+			"exchange", "income", "foreign-aid",
+			"coup"};
+  memcpy(turnActions, a, sizeof turnActions);
+
+  char c[10][charMax] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+  memcpy(accepted, c, sizeof accepted);
+
+  char b[7][charMax] = { "tax", "steal from you", "assassinate you", "exchange cards", "draw income", "draw foreign-aid", "coup"};
+  memcpy(actions, b, sizeof actions);
+}
+
+int runGame(int num, char names[5][256]) {
+  numPlayer = num;
+  preSetup();
+  /* for(counter = 0; counter < numPlayer; counter++) { */
+  /*   //populates name, wealth */
+  /*   struct player cur = people[counter]; */
+  /*   strcpy(people[counter].name, names[counter]); */
+  /* } */
+  people = (struct player *) calloc(numPlayer, sizeof(struct player));
+  for(counter = 0; counter < numPlayer; counter++) {
+    strcpy(people[counter].name, BLU);
+    strcat(people[counter].name, names[counter]);
+    strcat(people[counter].name, NRM);
+  }
+
+  setup();
+
+  curPlayer = myrand() % numPlayer;
+  //otherFunction
+  while(endGame) {
+    printf("test1\n");
+    //play action
+    //challenge
+    //block action
+    //undo action
+    sprintf(line, "\n\n\n");
+    print(9);
+    int c;
+    //for(c = 0; c < numPlayers; c++) {
+      printInfo(curPlayer);
+      //printInfo(c);
+      //print(c);
+      print(9);
+      //}
+    //skip dead players
+    if(people[curPlayer].revealed == 3) {
+      curPlayer++;
+      curPlayer = curPlayer % numPlayer;
+    } else {
+      turn();
+      sprintf(line, "\n\n\n");
+      print(9);
+      //printHistory();
+      curPlayer++;
+      calloc(numPlayer, sizeof(struct player));
+      curPlayer = curPlayer % numPlayer;
+    }
+    sprintf(line, "\n\n\n");
+    print(9);
+    gameEnd();
+  }
+}
 
 int myrand() {
   int randD = open("/dev/random", O_RDONLY);
@@ -28,17 +103,9 @@ int myrand() {
 //printTo(int cur)
 // -printf replacement, printInfo replacement
 void getInput(int cur) {
-  //buf = clientInput(cur);
-  //strcpy(input, buf);
-
-  sprintf(line, "%.100s%d- ", BLU, cur);
-  print(cur);
-  fgets(input, sizeof(input), stdin);
-  sprintf(line,"%.100s", NRM);
-  print(cur);
-  input[strlen(input) - 1] = 0; //removes newLine
-  if(strcmp(input, "exit") == 0)
-    exit(0);
+  strcpy(input, clientinput(cur));
+  // if(strcmp(input, "exit") == 0)
+  //   exit(0);
 }
 
 int findLoc(int value) {
@@ -52,7 +119,7 @@ int findLoc(int value) {
 //sendOutput(char b[charMax])
 
 void print(int client) {
-  //sentToClient(cur, line);
+  sendtoclient(client, line);
   printf("%d<<<%s", client, line);
 }
 
@@ -83,7 +150,7 @@ void printInfo(int cur) {
 	strcat(info, people[counter].i2);
 	strcat(info, "\n");
       }
-      else 
+      else
 	strcat(info, "unknown\n");
     }
   }
@@ -119,7 +186,7 @@ void setup() {
     /* strcpy(people[counter].name, BLU); */
     /* strcat(people[counter].name, input); */
     /* strcat(people[counter].name, NRM); */
-    people[counter].wealth = 7;
+    people[counter].wealth = 2;
     people[counter].revealed = 0;
     //populates court, i1, i2
     randLoc = myrand();
@@ -221,7 +288,7 @@ void exchange(int cur) {
     tempN += 2;
     replace = 2;
   }
-  
+
   randLoc = myrand();
   while(court[randLoc] != 0)
     randLoc = myrand();
@@ -231,7 +298,7 @@ void exchange(int cur) {
   while(court[randLoc] != 0 || randLoc == options[0])
     randLoc = myrand();
   options[1] = randLoc;
-  
+
 
   sprintf(line, "\nchoose a role to keep:\n");
   print(cur);
@@ -350,7 +417,7 @@ void coup(int cur) {
   sprintf(line, "\n%.100s staged a coup on %.100s\n%.100s must reveal an influence:\n", people[cur].name, people[tAns].name, people[tAns].name);
   print(9);
   reveal(tAns);
- 
+
 }
 
 
@@ -526,10 +593,10 @@ int block(int cur, int def, int ans) {
 	    int tTAns = atoi(input);
 	    if(tTAns == 1) { //challenge
 	      result = challenge(tTemp, temp, 0);
-	      
+
 	      //need to break for loop;
 	      //need to undo action of challenged
-	      break; 
+	      break;
 	    }
 	  }
 	}
@@ -540,7 +607,7 @@ int block(int cur, int def, int ans) {
 	  reCard = 1;
 	if(tAns == 3)
 	  reCard = 3;
-      
+
 	sprintf(line, "%.100s attempted to block with %.100s\nwaiting for challenges\n\n", people[temp].name, cards[reCard]);
 	print(9);
 	for(tCounter = 1; tCounter < numPlayer ; tCounter++) {
@@ -555,7 +622,7 @@ int block(int cur, int def, int ans) {
 	    int tTAns = atoi(input);
 	    if(tTAns == 1) { //challenge
 	      result = challenge(tTemp, temp, 0);
-	      
+
 	      //need to break for loop;
 	      //need to undo action of challenged
 	      break;
@@ -582,7 +649,7 @@ int chooseAction() {
   print(curPlayer);
   getInput(curPlayer);
   check(curPlayer, 7);
-  
+
   int ans = atoi(input);
   while(((ans == 0 || ans == 4 || ans == 5) && people[curPlayer].wealth == 10) ||
 	(ans == 2 && people[curPlayer].wealth < 3) ||
@@ -664,7 +731,7 @@ int playersJoin() {
   printf("hello, player 0 enter the number of players: (max 5)\n");
   getInput(0);
   check(0, 6);
-  numPlayer = atoi(input); 
+  numPlayer = atoi(input);
   people = calloc(numPlayer, sizeof(struct player));
   for(counter = 0; counter < numPlayer; counter++) {
     printf("player %d, please enter your name:\n", counter);
@@ -675,49 +742,10 @@ int playersJoin() {
   }
 }
 
-int runGame() {
-  /* for(counter = 0; counter < numPlayer; counter++) { */
-  /*   //populates name, wealth */
-  /*   struct player cur = people[counter]; */
-  /*   strcpy(people[counter].name, names[counter]); */
-  /* } */
-  setup();
-  curPlayer = myrand() % numPlayer;
-  //otherFunction
-  while(endGame) {
-    //play action
-    //challenge
-    //block action
-    //undo action
-    sprintf(line, "\n\n\n");
-    print(9);
-    int c;
-    //for(c = 0; c < numPlayers; c++) {
-      printInfo(curPlayer);
-      //printInfo(c);
-      //print(c);
-      print(9);
-      //}
-    //skip dead players
-    if(people[curPlayer].revealed == 3) {
-      curPlayer++;
-      curPlayer = curPlayer % numPlayer;
-    } else {
-      turn();
-      sprintf(line, "\n\n\n");
-      print(9);
-      //printHistory();
-      curPlayer++;
-      curPlayer = curPlayer % numPlayer;
-    }
-    sprintf(line, "\n\n\n");
-    print(9);
-    gameEnd();
-  }
-}
 
 //limit inputs to only acceptable answers
-int main() {
-  playersJoin();
-  runGame();
-}
+/* int main() { */
+/*   preSetup(); */
+/*   playersJoin(); */
+/*   runGame(); */
+/* } */

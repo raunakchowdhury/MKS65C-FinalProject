@@ -16,8 +16,17 @@ static void sighandler(int signo){
   }
 }
 
-int main() {
+void doGame() {
 
+
+
+}
+
+int main() {
+  int nu = 2;
+  char na [5][256]= { "ab", "cd"};
+
+  player_num = 0;
   int listen_socket;
   int yes_count = 0; // tally up yesses and compare at end
   int i;
@@ -100,15 +109,19 @@ int main() {
   //copy the names of clients into players for game integration purposes
   for (i = 0; i < player_num; i++){
     strcpy(names[i], clients[i].name);
-    printf("Done!\n");
   }
   strcpy(msg, "\n\nStarting game!\n" );
   // Notify all players
   announce(msg);
-  printf("\n\nStarting game!\n");
 
-  sendtoclient(0, "\nTesting function!");
-  clientinput(0);
+  runGame(player_num, names);
+
+
+  /* printf("\n\nStarting game!\n"); */
+
+  /* strcpy(buffer, "\nTesting function!"); */
+  // sendtoclient(0);
+  //clientinput(0);
 }
 
 void gameSetup() {
@@ -133,38 +146,44 @@ void announce(char* msg){
    }
 }
 
-void clientinput(int cur){
+char * clientinput(int cur){
   /*
    * Asks the designated client for a response.
    */
+
+   // printf(line, "%.100s%d- ", BLU);
+   //
+   // fgets(input, sizeof(input), stdin);
+   // printf(line,"%.100s", NRM);
+
+   // input[strlen(input) - 1] = 0; //removes newLine
+
+  char buffer[BUFFER_SIZE];
+  strcpy(buffer, "Make a choice!");
   struct client player = clients[cur];
+  write(player.client_socket, buffer, sizeof(buffer));
+  // printf("Filler sent!\n" );
   write(player.client_socket, "y", sizeof("y"));
-  printf("Filler sent!\n" );
-  write(player.client_socket, "y", sizeof("y"));
-  printf("Perm sent!\n" );
+  // printf("Perm sent!\n" );
   read(player.client_socket, client_answer, sizeof(client_answer));
+  return client_answer;
 }
 
 
-void sendtoclient(int cur, char * buf) {
+void sendtoclient(int cur, char line[]) {
   /*
    * Send buf to client.
    */
-
    // you want it to announce to all
+   char buf[BUFFER_SIZE];
+   //strcpy(line, "erljkhgukghjkdbjkbdfjkbjkdfjkbjkb");
+   strcpy(buf, line);
+   printf("\nBuffer: %s\n", buf);
    if (cur == 9){
-     announce(buf);
-   }      strcpy(msg, "At a vote of ");
-      sprintf(string_int, "%d", yes_count);
-      strcat(msg, string_int);
-      strcat(msg, " yes to ");
-      sprintf(string_int, "%d", player_num - yes_count);
-      strcat(msg, string_int);
-      strcat(msg, " no, the server will continue waiting.");
-
+     announce(line);
+   }
    else{
-     struct client player = clients[cur];
-     write(player.client_socket, buf, charMax);
-     write(player.client_socket, "n", sizeof("n"));
+     write(clients[cur].client_socket, buf, sizeof(buf));
+     write(clients[cur].client_socket, "n", sizeof("n"));
    }
 }
