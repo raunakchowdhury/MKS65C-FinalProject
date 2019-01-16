@@ -49,7 +49,7 @@ int main() {
     player_num++;
 
     strcpy(msg, player.name);
-    strcat(msg, " has joined the lobby!");
+    strcat(msg, " has joined the lobby!\n");
     printf("%s\n", msg);
     announce(msg);
 
@@ -60,7 +60,7 @@ int main() {
       strcpy(msg, "There are currently ");
       sprintf(string_int, "%d", player_num);
       strcat(msg, string_int);
-      strcat(msg, " players in the game. Would you like to proceed with the game (y/n)?");
+      strcat(msg, " players in the game. Would you like to proceed with the game (y/n)?\n");
       yes_count = 0;
 
       // Loop through the players and ask them if they want to begin
@@ -87,7 +87,7 @@ int main() {
       strcat(msg, " yes to ");
       sprintf(string_int, "%d", player_num - yes_count);
       strcat(msg, string_int);
-      strcat(msg, " no, the server will continue waiting.");
+      strcat(msg, " no, the server will continue waiting.\n");
       announce(msg);
       printf("%s\n", msg);
     }
