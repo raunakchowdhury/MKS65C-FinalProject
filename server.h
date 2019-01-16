@@ -15,11 +15,6 @@ char client_answer[BUFFER_SIZE];
 int player_num;
 void announce(char * msg);
 
-// server stuff
-void master_game(struct client clients[]);
-
-void gameSetup();
-
 char * clientinput(int cur);
 
 void sendtoclient(int cur, char line[]);

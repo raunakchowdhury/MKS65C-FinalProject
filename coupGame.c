@@ -3,18 +3,21 @@
 
 void getInput(int cur) {
   strcpy(input, clientinput(cur));
- // fgets(input, sizeof(input), stdin);
- // input[strlen(input) - 1] = 0; //removes newLine
- // if(strcmp(input, "exit") == 0)
- //   exit(0);
+  if(strcmp(input, "exit") == 0)  {
+    sprintf(line, "\n\n%.100s has left the game\ngame cannot continue\n", people[cur].name);
+    int c;
+    for(c = 0; c < numPlayer; c++) {
+      if(c != cur) {
+	print(c);
+	strcpy(line, "-----GAME END-----\n");
+	print(c);
+      }
+    }
+  }
 }
 
 void print(int client) {
   sendtoclient(client, line);
-  // if(client == 9)
-  //   printf("%s", line);
-  // else
-  //   printf("%d>>%s", client, line);
 }
 
 void printInfo(int cur) {
@@ -460,7 +463,7 @@ int block(int cur, int def, int ans) {
 	}
 	break;
       case 5: //foreign-aid
-	sprintf(line, "0. allow   1. block with duke\n");
+	sprintf(line, "0. allow   1. block with %.100s\n", cards[0]);
 	print(temp);
 	size = 2;
 	break;
@@ -478,7 +481,7 @@ int block(int cur, int def, int ans) {
 	sprintf(line, "%.100s must reveal an influence\n", people[temp].name);
 	print(9);
 	reveal(def);
-  sprintf(line, "%.100s assassinated %.100s", people[cur].name, people[temp].name);
+  sprintf(line, "%.100s assassinated %.100s\n", people[cur].name, people[temp].name);
   print(9);
 	return 1;
       } else if(ans == 2 && temp == def && tAns == 1) {
@@ -487,7 +490,7 @@ int block(int cur, int def, int ans) {
 	  sprintf(line, "%.100s must reveal an influence\n", people[temp].name);
 	  print(9);
 	  reveal(temp);
-    sprintf(line, "%.100s assassinated %.100s", people[cur].name, people[temp].name);
+    sprintf(line, "%.100s assassinated %.100s\n", people[cur].name, people[temp].name);
     print(9);
 	}
 	return 1;
@@ -509,7 +512,7 @@ int block(int cur, int def, int ans) {
 	      result = challenge(tTemp, temp, 4);
 	      if(result == 1) { // temp didnt have contessa
 		reveal(temp);
-    sprintf(line, "%.100s assassinated %.100s, %.100s did not have a %.100s", people[cur].name, people[temp].name, people[temp].name, cards[4]);
+    sprintf(line, "%.100s assassinated %.100s, %.100s did not have a %.100s\n", people[cur].name, people[temp].name, people[temp].name, cards[4]);
     print(9);
 	      }
 	      break;
@@ -740,27 +743,23 @@ void setup() {
 
 void runGame() {
   curPlayer = myrand() % numPlayer;
-  //otherFunction
   while(endGame) {
     //choose action
     //challenge/block action
     //action effect
-    sprintf(line, "\n\n\n");
+    sprintf(line, "\n\n");
     print(9);
-    int c;
-    for(c = 0; c < numPlayer; c++) {
-      //printInfo(curPlayer);
-      //print(9);
-      printInfo(c);
-      print(c);
-      }
     //skip dead players
     if(people[curPlayer].revealed == 3) {
       curPlayer++;
       curPlayer = curPlayer % numPlayer;
     } else {
+      int c;
+      for(c = 0; c < numPlayer; c++) {
+	printInfo(c);
+	print(c);
+      }
       turn();
-      //printHistory();
       curPlayer++;
       curPlayer = curPlayer % numPlayer;
     }

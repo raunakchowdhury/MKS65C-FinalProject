@@ -32,7 +32,7 @@ int main() {
     int client_socket = server_connect(listen_socket);
 
     // Allow the client to set his/her name
-    strcpy(buffer, "Type your name!");
+    strcpy(buffer, "-----COUP-----\nenter \'exit\' if you ever wish to close the game\ntype your name to join:\n");
     write(client_socket, buffer, sizeof(buffer));
 
     // Give client permission to respond
@@ -49,7 +49,7 @@ int main() {
     player_num++;
 
     strcpy(msg, player.name);
-    strcat(msg, " has joined the lobby!\n");
+    strcat(msg, " has joined the lobby\n");
     printf("%s\n", msg);
     announce(msg);
 
@@ -57,10 +57,10 @@ int main() {
     // printf("Requesting assent from players\n" );
     if (player_num > 1){
       // assemble message for next code section
-      strcpy(msg, "There are currently ");
+      strcpy(msg, "there are currently ");
       sprintf(string_int, "%d", player_num);
       strcat(msg, string_int);
-      strcat(msg, " players in the game. Would you like to proceed with the game (y/n)?\n");
+      strcat(msg, " players in the game\nwould you like to proceed with the game (yes/no)?\n");
       yes_count = 0;
 
       // Loop through the players and ask them if they want to begin
@@ -72,7 +72,7 @@ int main() {
         read(clients[i].client_socket, buffer, sizeof(buffer));
 
         // tally up yesses
-        if(!strcmp(buffer, "y") || !strcmp(buffer, "Y")){
+        if(!strcmp(buffer, "yes")){
           yes_count++;
         }
       }
@@ -93,94 +93,50 @@ int main() {
     }
   }
   //copy the names of clients into players for game integration purposes
-  for (i = 0; i < player_num; i++){
+  for (i = 0; i < player_num; i++) {
     strcpy(names[i], clients[i].name);
   }
   strcpy(msg, "\n\nStarting game!\n" );
   // Notify all players
   announce(msg);
-
-  //sendtoclient(1, msg);
-
-
-  //
-  //
-//runGame(player_num, names);
   preSetup();
   addPlayers(player_num, names);
-  //playersJoin();
   setup();
   runGame();
-
-  /* printf("\n\nStarting game!\n"); */
-
-  /* strcpy(buffer, "\nTesting function!"); */
-  // sendtoclient(0);
-  // clientinput(0);
+  exit(0);
 }
-
-void gameSetup() {
-  /*
-   * Sets up the game
-   * If all current players agree on palying, the game starts
-   */
-}
-
 
 
 void announce(char msg[]){
-  /*
-   * Announces msg to all the players. No further action is needed from the players.
-   */
-   int i;
-   char buffer[BUFFER_SIZE];
-   strcpy(buffer, msg);
-   for (i = 0; i < player_num; i++){
-     write(clients[i].client_socket, buffer, sizeof(buffer));
-     // write(clients[i].client_socket, "n", sizeof("n"));
-   }
+  // Announces msg to all the players. No further action is needed from the players.
+  int i;
+  char buffer[BUFFER_SIZE];
+  strcpy(buffer, msg);
+  for (i = 0; i < player_num; i++) {
+    write(clients[i].client_socket, buffer, sizeof(buffer));
+  }
 }
 
 char * clientinput(int cur){
-  /*
-   * Asks the designated client for a response.
-   */
-
-   // printf(line, "%.100s%d- ", BLU);
-   //
-   // fgets(input, sizeof(input), stdin);
-   // printf(line,"%.100s", NRM);
-
-   // input[strlen(input) - 1] = 0; //removes newLine
-
   char buffer[BUFFER_SIZE];
   printf("\n\nasking %d to write!\n", cur);
   strcpy(buffer, "Make a choice!");
   struct client player = clients[cur];
   write(player.client_socket, buffer, sizeof(buffer));
-  // printf("Filler sent!\n" );
-  // write(player.client_socket, "y", sizeof("y"));
-  // printf("Perm sent!\n" );
   read(player.client_socket, client_answer, sizeof(client_answer));
   return client_answer;
 }
 
 
 void sendtoclient(int cur, char line[]) {
-  /*
-   * Send buf to client.
-   */
-   // you want it to announce to all
-   char buf[BUFFER_SIZE];
-   //strcpy(line, "erljkhgukghjkdbjkbdfjkbjkdfjkbjkb");
-   // strcpy(buf, "#@!");
-   // strcat(buf, line);
-   strcpy(buf, line);
-   printf("%s", buf);
-   if (cur == 9){
-     announce(buf);
-   }
-   else{
-     write(clients[cur].client_socket, buf, sizeof(buf));
-   }
+  char buf[BUFFER_SIZE];
+
+  strcpy(buf, line);
+  printf("%s", buf);
+  if (cur == 9){
+    announce(buf);
+  }
+  else{
+    write(clients[cur].client_socket, buf, sizeof(buf));
+  }
 }

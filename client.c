@@ -14,18 +14,24 @@ int main(int argc, char **argv) {
 
   int readResult = read(server_socket, buffer, sizeof(buffer));
   while (readResult) {
-    if(strcmp("exit", buffer) == 0) {
-      exit(0);
-    }
     if (strcmp("Make a choice!", buffer) == 0) {
 
       printf("%s- ", BLU);
       fgets(buffer, sizeof(buffer), stdin);
       printf("%s", NRM);
       *strchr(buffer, '\n') = 0;
+      if(strcmp("exit", buffer) == 0) {
+	write(server_socket, buffer, sizeof(buffer));
+	printf("game ended because you left\n");
+	exit(0);
+      }
       write(server_socket, buffer, sizeof(buffer));
     }
-    else{
+    else if(strcmp("-----GAME END-----\n", buffer) == 0) {
+      printf("%s", buffer);
+      exit(0);
+    }
+    else {
       printf("%s", buffer);
     }
     readResult = read(server_socket, buffer, sizeof(buffer));
