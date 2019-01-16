@@ -1,9 +1,15 @@
-main: client server
+main: setup_client setup_server
 
-server: server.o networking.o coupGame.o
+rserver:
+	./server
+
+rclient:
+	./client $(args)
+
+setup_server: server.o networking.o coupGame.o
 	gcc -o server server.o networking.o coupGame.o
 
-client: client.o networking.o
+setup_client: client.o networking.o
 	gcc -o client client.o networking.o
 
 client.o: client.c networking.h

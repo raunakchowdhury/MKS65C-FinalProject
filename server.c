@@ -5,13 +5,7 @@
 // handle the SIGINT singla by deleting the well_known_pipe(WKP)
 static void sighandler(int signo){
   if (signo == SIGINT){
-    printf("Closing pipes...\n");
-    if(unlink("to_client") != -1){
-      printf("Pipe to_client deleted.\n" );
-    }
-    if(unlink("to_parent") != -1){
-      printf("Pipe to_parent deleted.\n" );
-    }
+    printf("Closing game!\n");
     exit(0);
   }
 }
