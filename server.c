@@ -63,7 +63,7 @@ int main() {
 
     // If there is more than one player in the game, ask all if they want to start
     // printf("Requesting assent from players\n" );
-    if (player_num > 1){
+    if (player_num > 1 && player_num < 5){
       // assemble message for next code section
       strcpy(msg, "there are currently ");
       sprintf(string_int, "%d", player_num);
