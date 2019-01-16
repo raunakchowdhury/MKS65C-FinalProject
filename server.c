@@ -68,19 +68,26 @@ int main() {
       strcpy(msg, "there are currently ");
       sprintf(string_int, "%d", player_num);
       strcat(msg, string_int);
-      strcat(msg, " players in the game\nwould you like to proceed with the game (yes/no)?\n");
+      strcat(msg, " players in the game\nwould you like to proceed with the game (y/n)?\n");
       yes_count = 0;
 
       // Loop through the players and ask them if they want to begin
       for (i = 0; i < player_num; i++){
-        // printf("Sending message to %s...\n", clients[i].name);
-        write(clients[i].client_socket, msg, sizeof(msg));
-        // Give client permission to respond
-        write(clients[i].client_socket, "Make a choice!", sizeof("Make a choice!"));
-        read(clients[i].client_socket, buffer, sizeof(buffer));
+        int correct = 1;
+        while(correct){
+          // printf("Sending message to %s...\n", clients[i].name);
+          write(clients[i].client_socket, msg, sizeof(msg));
+          // Give client permission to respond
+          write(clients[i].client_socket, "Make a choice!", sizeof("Make a choice!"));
+          read(clients[i].client_socket, buffer, sizeof(buffer));
+
+          if (!strcmp(buffer, "y") || !(strcmp(buffer, "n"))){
+            correct = 0;
+          }
+        }
 
         // tally up yesses
-        if(!strcmp(buffer, "yes")){
+        if(!strcmp(buffer, "y")){
           yes_count++;
         }
       }
