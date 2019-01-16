@@ -9,9 +9,9 @@ None
 
 ### Instructions to use project
 1. Ensure you are in the root directory of the repo.
-1. Run `make`.
-1. In one terminal, run `make rserver`.
-1. In other terminals, run `make rclient`.
+1. SSH into `*.stuy.edu`, where `*` is `homer`, `bart`, `clyde`, or `marge`. Run `make`.
+1. Run `make rserver` in that same terminal.
+1. In other terminals, run `make rclient args="*.stuy.edu"`.
 1. Follow the prompts on screen to play the game.
 
 ### Instructions to use just the game, because server failed
