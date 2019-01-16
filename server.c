@@ -32,7 +32,15 @@ int main() {
     int client_socket = server_connect(listen_socket);
 
     // Allow the client to set his/her name
-    strcpy(buffer, "-----COUP-----\nenter \'exit\' if you ever wish to close the game\ntype your name to join:\n");
+    strcpy(buffer, "-----COUP-----\n");
+    strcat(buffer, "In a future where the government is run for profit, all but a privileged few live lives of poverty and desperation. ");
+    write(client_socket, buffer, sizeof(buffer));
+
+    strcpy(buffer, "The Resistance rises out of these oppressed masses in revolt and throws the government into chaos.\n");
+    strcat(buffer, "\nMany see hope for a brighter future for the first time in their lives. Others see opportunity for absolute power.\n");
+    strcat(buffer, "\nTo take command, you must destroy the influence of your rivals and drive them into exile.\n\nOnly one can survive.\n");
+
+    strcat(buffer, "\n\n\ntype your name to join:\n");
     write(client_socket, buffer, sizeof(buffer));
 
     // Give client permission to respond
@@ -97,6 +105,7 @@ int main() {
     strcpy(names[i], clients[i].name);
   }
   strcpy(msg, "\n\nStarting game!\n" );
+  strcat(msg, "enter \'exit\' if you ever wish to close the game\n");
   // Notify all players
   announce(msg);
   preSetup();

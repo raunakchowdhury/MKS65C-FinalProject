@@ -1,4 +1,4 @@
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 1024
 #define MAX 5 //adjust this val for num of players
 
 struct client {
@@ -7,7 +7,7 @@ struct client {
 };
 
 //holds all the info for server integration
-char names[MAX][BUFFER_SIZE];
+char names[5][256];
 struct client clients[MAX]; // array of players
 char client_answer[BUFFER_SIZE];
 
